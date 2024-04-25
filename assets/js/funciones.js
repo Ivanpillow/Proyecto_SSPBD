@@ -13,6 +13,34 @@ $(".tipo_dato").change(function(){
 $(".tipo_dato").change();
 
 
+$("#select_ordenamiento").change(function(){
+	var name_table = $("#nombre_tabla").val();
+	var opcion = $(this).val();
+
+	llenar_tabla(name_table, opcion);
+});
+
+
+function llenar_tabla(name_table, opcion){
+	$.post("controller.php",
+	{ 	action 					: "llenar_tabla",
+			name_table 		: name_table,
+			opcion          : opcion	
+	}, end_llenar_tabla);
+} 
+
+function end_llenar_tabla(xml){
+	// console.log($(this).find("tabla_a_rellenar").text());
+	// rellena_tablas(xml,"tabla_a_rellenar",ocultamiento_columnas);
+
+	$(xml).find("response").each(function(i){	
+		if($(this).find("result").text()=="ok"){
+			$("#tabla_a_rellenar").html($(this).find("tabla_a_rellenar").text());
+		}
+	});
+}
+
+
 $(document).ready(function() { 
 	//modificar-tablas
 	$("#formEliminarCampo").hide();
@@ -219,4 +247,55 @@ function validateEmail(email) {
 	}	
 	var nueva_fecha = ano + "-" + mes_num + "-" + dia;
 	return nueva_fecha;
+}
+
+
+
+function rellena_tablas(xml,$id_tabla_mostrar_datos,$ocultamiento_columnas){
+	$(xml).find("response").each(function(i){		 
+		if ($(this).find("result").text()=="ok"){
+			/*Destruye la tabla y reinicializa valores*/
+			$("#"+$id_tabla_mostrar_datos).html(""); 
+			table = $('#example').DataTable();
+			table.buttons().destroy(); 
+			$(".dt-buttons").remove(); 
+			table .clear() .draw(); 
+			table.destroy(); 
+
+			$("#"+$id_tabla_mostrar_datos).html($(this).find($id_tabla_mostrar_datos).text()); 
+			/*inicializa la tabla y Carga los botones de Exportación con los datos extraidos*/	
+			$('[data-toggle="tooltip"]').tooltip();
+			table = $('#example').DataTable({
+				dom: 'Bfrtip',
+				pageLength : 30,
+				buttons: [
+					{  
+						extend: 'excel',
+						exportOptions: {
+							columns: [":visible"]
+						}
+					},
+					{
+						extend: 'pdf',
+						exportOptions: {
+							columns: [":visible"]
+						}
+					},
+					{
+						extend: 'print',
+						exportOptions: {
+							columns: [":visible"]
+						}
+					},
+					{
+						extend: 'colvis',
+						columns: ':gt(0)'
+					}
+				],
+				columnDefs: [{targets:$ocultamiento_columnas,visible:false}], 
+				//Manda a llamar el contenido de la variable global idioma_espanol con el objetivo de definir el lenguage para diferentes labels usados.
+				language: idioma_espanol
+			});
+		}
+	});
 }

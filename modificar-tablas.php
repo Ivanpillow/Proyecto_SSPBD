@@ -120,7 +120,7 @@ ob_start();
                     </form>
 
                     
-                    <form action="crear_bd.php" method="POST" class="form" id="formModificarCampo">
+                    <form class="form" id="formModificarCampo">
                         <h4>Modificar Campo</h4>
                         <div class="form-group">
                             <label for="columna">Nombre de la Columna:</label>

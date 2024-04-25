@@ -12,8 +12,103 @@
 
 
 
+if (Requesting("action")=="llenar_tabla"){
+	$name_table = Requesting("name_table");
+	$opcion = Requesting("opcion");
+	
+	$resultStatus 	= "ok";
+	$resultText 		= "Correcto.";	
+	$xmlRow = "";	
+
+	$query2 = "SHOW COLUMNS FROM $name_table";
+	$columnas = DatasetSQL($query2);
+	while($row2 = mysqli_fetch_array($columnas)){
+		$columna_id = $row2[0];
+		break;
+	}
+
+	$num_columnas = $columnas->num_rows;
+
+	$query1 = "SELECT * FROM $name_table";
+
+	
+	switch ($opcion) {
+        case 1:
+            $query1 .= " ORDER BY ".$columna_id." ASC";
+            break;
+        case 2:
+            $query1 .= " ORDER BY ".$columna_id." DESC";
+            break;
+        case 3:
+            $query1 .= " ORDER BY status ASC";
+            break;
+        case 4:
+            $query1 .= " ORDER BY status DESC";
+            break;
+        case 5:
+            $query1 .= " ORDER BY precio ASC";
+            break;
+        case 6:
+            $query1 .= " ORDER BY precio DESC";
+            break;
+        case 7:
+            $query1 .= " ORDER BY subtotal ASC";
+            break;
+        case 8:
+            $query1 .= " ORDER BY subtotal DESC";
+            break;
+        case 9:
+            $query1 .= " ORDER BY cantidad ASC";
+            break;
+        case 10:
+            $query1 .= " ORDER BY cantidad DESC";
+            break;
+        case 11:
+            $query1 .= " ORDER BY stock ASC";
+            break;
+        case 12:
+            $query1 .= " ORDER BY stock DESC";
+            break;
+        case 11:
+            $query1 .= " ORDER BY fecha ASC";
+            break;
+        case 12:
+            $query1 .= " ORDER BY fecha DESC";
+            break;
+        default:
+            
+        break;
+    }
+
+	
+	$datos_tabla = DatasetSQL($query1);
+
+	while($row1 = mysqli_fetch_array($datos_tabla)){
+		$cont = 0;
+		$xmlRow .= "<tr>";
+		while($cont < $num_columnas){
+			$xmlRow .=  "<td>".$row1[$cont]."</td>";
+			$cont++;
+		}
+		$xmlRow .=  "<td>
+				<a href='#'><i class='fas fa-pen fa-lg'></i></a> &nbsp;
+				<a href='#'><i class='fas fa-trash text-danger fa-lg'></i></a>
+			</td>
+		</tr>";
+	}
+
+	$result = array( 
+		'tabla_a_rellenar' 		=> $xmlRow, 
+		'result' 				=> $resultStatus, 
+		'result_text' 			=> $resultText
+	);		
+	XML_Envelope($result);     
+	exit;	
+}
+
+
 if (Requesting("action")=="agregar_tabla"){ 	
-	$nameBD		= Requesting("name_table");
+	$name_table		= Requesting("name_table");
 	$campo_id 		= Requesting("campo_id");	
 
 	$resultStatus 	= "ok"; 
@@ -21,11 +116,11 @@ if (Requesting("action")=="agregar_tabla"){
 	 
 	
 
-	$query_check = "SHOW TABLES LIKE '".$nameBD."'";
+	$query_check = "SHOW TABLES LIKE '".$name_table."'";
 	$result = DatasetSQL($query_check);
 
 	if($result->num_rows == 0){
-		$query1 = "CREATE TABLE ".$nameBD." (".$campo_id." INT NOT NULL AUTO_INCREMENT, PRIMARY KEY (".$campo_id."))";
+		$query1 = "CREATE TABLE ".$name_table." (".$campo_id." INT NOT NULL AUTO_INCREMENT, PRIMARY KEY (".$campo_id."))";
 		//echo $query1;
 		$result = ExecuteSQL($query1);
 		

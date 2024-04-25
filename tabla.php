@@ -9,6 +9,7 @@ ob_start();
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Inicio</title>
+	<?php include("headertagbase.php"); ?>
     <link rel="stylesheet" href="estilos4.css">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
@@ -17,13 +18,30 @@ ob_start();
 	<link href="assets/plugins/sweetalert/sweetalert.css" rel="stylesheet" type="text/css"> <!-- Swal -->
 	<script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script> <!-- Swal -->
 </head>
-<body style="background-color: ;">
+<body>
 
     <?php
     
 	require_once "include/functions.php";
 	require_once "include/db_tools.php";  
     // include('main-header.php') 
+
+    if(isset($_GET['tabla'])){
+        $table = $_GET['tabla'];
+
+        $query1 = "SHOW TABLES LIKE '".$table."'";
+
+        $existe_tabla = DatasetSQL($query1); 
+        if($existe_tabla->num_rows > 0){
+        } else{
+            header('Location: ../index');
+            exit;
+        }
+    } else{
+        header('Location: index');
+        exit;
+    }
+
 
     ?>
 
@@ -45,57 +63,79 @@ ob_start();
         
     <div class="container">
         <h1>Punto de Venta de Tenis</h1>
-        <h2>Tablas Existentes</h2>
+        <h2>Tabla <?php echo $table; ?></h2>
         <div class="container">
-            <button class="btn btn-success text-white" type="button" data-bs-toggle='modal' data-bs-target='#modalAgregar' data-bs-whatever="@mdo">Nueva tabla</button>
-            <div class="row justify-content-center">
+        <input id="nombre_tabla" type="hidden" value="<?php echo $table; ?>">
+            <button class="btn btn-success text-white" type="button" data-bs-toggle='modal' data-bs-target='#modalAgregar' data-bs-whatever="@mdo">Nuevo registro</button>
+            
+            <div class="row justify-content-center mt-3">
                 <div class="col-8">
                     <table border='1' class="table" id="table_tablas">
-                        <tr>
-                            <th>Opciones</th>
-                            <th>Tabla</th>
-                            <th>Columna</th>
-                            <th>Tipo de Dato</th>
-                            <th>Llave Primaria</th>
-                        </tr>
-                        <?php
-                        $query = "SHOW TABLES";
-                        $result = DatasetSQL($query);
+                        <thead>
+                            <tr>
+                                <?php
+                                $query2 = "SHOW COLUMNS FROM $table";
+                                $columnas = DatasetSQL($query2);
 
-                        while($row = mysqli_fetch_array($result)){
-                            $table = $row[0];
-                    
-                            $query_table_info = "DESCRIBE $table";
-                            $result_table_info = DatasetSQL($query_table_info);
-                    
-                            
-                            // <a class='btn btn-success' onclick=''>Editar tabla</a>
-                            // <a class='btn btn-danger' onclick=''>Borrar tabla</a>
-                            
-                            echo "<tr>
-                            <td rowspan='" . $result_table_info->num_rows . "'>
-                                <button class='btn btn-secondary text-white' type='button' onclick=\"redirect_modificar_tabla('$table')\"><i class='fas fa-pen'></i> Editar tabla</button> <br><br>
-                                <button class='btn btn-danger text-white' type='button' onclick=\"eliminar_tabla('$table')\"><i class='fas fa-trash'></i> Borrar tabla</button> 
-                            </td>";
+                                $num_columnas = $columnas->num_rows;
 
-                           echo " <td rowspan='" . $result_table_info->num_rows . "'><a href='tabla/$table'>$table</a></td>";
-                    
-                            while ($row_table_info = mysqli_fetch_array($result_table_info)){
-                                echo "<td>".$row_table_info['Field']."</td>";
-                                echo "<td>".$row_table_info['Type']."</td>";
-                    
-                                if($row_table_info['Key'] == "PRI"){
-                                    echo "<td>Sí</td>";
-                                } else{
-                                    echo "<td>No</td>";
+                                while($row2 = mysqli_fetch_array($columnas)){
+                                    echo "<th>".$row2['Field']."</th>";
                                 }
-                    
-                                echo "</tr><tr>";
+                                ?>
+                                <th>Opciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabla_a_rellenar"></tbody>
+                        
+                        
+                    </table>
+                </div>
+                
+                <div class="col-4">
+                    <h4 class="text">Ordenar por:</h4>
+                    <select id="select_ordenamiento" class="select">
+                        <option value="1">ID de menor a mayor</option>
+                        <option value="2">ID de mayor a menor</option>
+
+                        <?php
+                        $query3 = "SHOW COLUMNS FROM $table";
+                        $columnas = DatasetSQL($query2);
+
+                        $num_columnas = $columnas->num_rows;
+
+                        while($row3 = mysqli_fetch_array($columnas)){
+                            Switch($row3['Field']){
+                                case 'status':
+                                    echo "<option value='3'>".$row3['Field']." de menor a mayor</option>";
+                                    echo "<option value='4'>".$row3['Field']." de mayor a menor</option>";
+                                break;
+                                case 'precio':
+                                    echo "<option value='5'>".$row3['Field']." de menor a mayor</option>";
+                                    echo "<option value='6'>".$row3['Field']." de mayor a menor</option>";
+                                    break;
+                                case 'subtotal':
+                                    echo "<option value='7'>".$row3['Field']." de menor a mayor</option>";
+                                    echo "<option value='8'>".$row3['Field']." de mayor a menor</option>";
+                                    break;
+                                case 'cantidad':
+                                    echo "<option value='9'>".$row3['Field']." de menor a mayor</option>";
+                                    echo "<option value='10'>".$row3['Field']." de mayor a menor</option>";
+                                    break;
+                                case 'stock':
+                                    echo "<option value='11'>".$row3['Field']." de menor a mayor</option>";
+                                    echo "<option value='12'>".$row3['Field']." de mayor a menor</option>";
+                                    break;
+                                case 'fecha':
+                                    echo "<option value='13'>".$row3['Field']." de menor a mayor</option>";
+                                    echo "<option value='14'>".$row3['Field']." de mayor a menor</option>";
+                                    break;
+
                             }
-                            echo "</tr>";
                         }
                         ?>
-                    </table>
+                    </select>
+                    <br>
                 </div>
             </div>
         </div>
@@ -151,15 +191,8 @@ ob_start();
         </div>
     </div>
 
-    <script>
-    // Función para capturar el ID del registro seleccionado
-        $('#modalEliminar').on('show.bs.modal', function (event) {
-            var button = $(event.relatedTarget);
-            var tableName = button.data('table');
-            var modal = $(this);
-            modal.find('#tabla_nombre').val(tableName);
-        });
-    </script>
+
+    
 
     
     <script src="js/main.js"></script>
@@ -177,5 +210,23 @@ ob_start();
     <script src="script.js"></script>
      <!-- Incluir Bootstrap JS -->
      <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+
+     
+    <script>
+        $(document).ready(function() { 
+            var tabla = $("#nombre_tabla").val();
+            //modificar-tablas
+            llenar_tabla(tabla, 1);
+            
+        });
+
+    // Función para capturar el ID del registro seleccionado
+        $('#modalEliminar').on('show.bs.modal', function (event) {
+            var button = $(event.relatedTarget);
+            var tableName = button.data('table');
+            var modal = $(this);
+            modal.find('#tabla_nombre').val(tableName);
+        });
+    </script>
 </body>
 </html>
