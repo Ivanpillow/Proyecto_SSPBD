@@ -1,0 +1,1 @@
+<base href="http://localhost/bookswap/" >

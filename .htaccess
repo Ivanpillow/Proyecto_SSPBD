@@ -1,0 +1,34 @@
+RewriteEngine on
+Options -Indexes
+Options +FollowSymLinks
+#RewriteBase /localhost/bookswap/web/
+
+# <IfModule mod_headers.c>
+#     Header set Access-Control-Allow-Origin "*"
+# </IfModule>
+
+#RewriteCond %{HTTPS} off
+#RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+RewriteRule ^([a-zA-Z0-9_-]+)$ $1.php
+
+RewriteRule ^modificar-tablas/([a-zA-Z0-9_-]+)$ modificar-tablas.php?tabla=$1
+#  RewriteRule ^libro/([a-zA-Z0-9_-]+)/([a-zA-Z0-9_-]+)$ libro.php?id=$1&titulo=$2
+# RewriteRule ^tienda/([a-zA-Z0-9_-]+)/([a-zA-Z0-9_-]+)/([a-zA-Z0-9_-]+)$ tienda.php?tipo=$1&opc=$2&page=$3
+
+# ErrorDocument 404 http://localhost/bookswap/404    ---> Activar esteeeeeeeeeeeeee
+
+# php -- BEGIN cPanel-generated handler, do not edit
+# This domain inherits the “PHP” package.
+# php -- END cPanel-generated handler, do not edit
+
+#----------------------------------------------------------------cp:ppd
+# Section managed by cPanel: Password Protected Directories     -cp:ppd
+# - Do not edit this section of the htaccess file!              -cp:ppd
+#----------------------------------------------------------------cp:ppd
+#AuthType Basic
+#AuthName "Protected 'public_html'"
+#Require valid-user
+#----------------------------------------------------------------cp:ppd
+# End section managed by cPanel: Password Protected Directories -cp:ppd
+#----------------------------------------------------------------cp:ppd
