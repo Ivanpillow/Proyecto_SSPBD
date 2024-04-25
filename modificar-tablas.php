@@ -85,7 +85,6 @@ ob_start();
 
                     <form class="form" id="formAgregarCampo">
                         <h4>Agregar Campo</h4>
-                        <input type="hidden" value="agregar_campo">
                         <div class="form-group">
                             <label for="columna">Nombre de la Columna:</label>
                             <input type="text" name="columna" id="agregar_campo_columna" class="input-text" required>
@@ -123,11 +122,6 @@ ob_start();
                     
                     <form action="crear_bd.php" method="POST" class="form" id="formModificarCampo">
                         <h4>Modificar Campo</h4>
-                        <input type="hidden" value="modificar_campo">
-                        <div class="form-group">
-                            <label for="name_table">Tabla:</label>
-                            <input type="text" name="name_table" class="input-text" required>
-                        </div>
                         <div class="form-group">
                             <label for="columna">Nombre de la Columna:</label>
                             <input type="text" name="columna" id="columna" class="input-text" required>
@@ -150,7 +144,7 @@ ob_start();
                             <input type="number" name="longitud" class="longitud" class="input-text" disabled>
                         </div>
                         <div class="form-group">
-                            <input type="submit" value="Guardar" class="btn-submit">
+                            <button onclick="modificar_campo(event)" class="btn btn-danger btn-submit">Eliminar</button>
                         </div>
                         
                     </form>

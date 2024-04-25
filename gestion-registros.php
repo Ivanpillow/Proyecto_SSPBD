@@ -26,9 +26,6 @@
                         <a class="nav-link" aria-current="page" href="index">Inicio</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link " aria-current="page" href="gestion-tablas">Gestión de Tablas</a>
-                    </li>
-                    <li class="nav-item">
                         <a class="nav-link active" aria-current="page" href="gestion-registros">Gestión de Registros</a>
                     </li>
                     
