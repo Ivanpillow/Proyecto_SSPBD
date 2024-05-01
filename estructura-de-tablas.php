@@ -57,6 +57,7 @@ ob_start();
                             <th>Columna</th>
                             <th>Tipo de Dato</th>
                             <th>Llave Primaria</th>
+                            <th>Opciones Campo</th>
                         </tr>
                         <?php
                         $query = "SHOW TABLES";
@@ -74,17 +75,19 @@ ob_start();
                             
                             echo "<tr>
                             <td rowspan='" . $result_table_info->num_rows . "'>
-                                <button class='btn btn-secondary text-white' type='button' onclick=\"redirect_modificar_tabla('$table')\"><i class='fas fa-pen'></i> Editar tabla</button> <br><br>
-                                <button class='btn btn-danger text-white' type='button' onclick=\"eliminar_tabla('$table')\"><i class='fas fa-trash'></i> Borrar tabla</button> 
+                                <button class='btn btn-secondary text-white' type='button' data-bs-toggle='modal' data-bs-target='#modalAgregarCampo' data-name='".$table."'><i class='fas fa-plus-circle'></i> Agregar campo</button> <br><br>
+                                <button class='btn btn-danger text-white' type='button'  data-bs-toggle='modal' data-bs-target='#modalEliminar' data-name='".$table."'><i class='fas fa-trash'></i> Borrar tabla</button> 
                             </td>";
 
+                            // <button class='btn btn-secondary text-white' type='button' onclick=\"redirect_modificar_tabla('$table')\"><i class='fas fa-pen'></i> Editar tabla</button> <br><br>
                            
                             // echo " <td rowspan='" . $result_table_info->num_rows . "'><a href='tabla/$table'>$table</a></td>";
                         
                             echo " <td rowspan='" . $result_table_info->num_rows . "'>$table</td>";
                     
                             while ($row_table_info = mysqli_fetch_array($result_table_info)){
-                                echo "<td>".$row_table_info['Field']."</td>";
+                                $nombre_campo = $row_table_info['Field'];
+                                echo "<td>".$nombre_campo."</td>";
                                 echo "<td>".$row_table_info['Type']."</td>";
                     
                                 if($row_table_info['Key'] == "PRI"){
@@ -92,6 +95,11 @@ ob_start();
                                 } else{
                                     echo "<td>No</td>";
                                 }
+
+                                echo "<td>
+                                    <a type='button' data-bs-toggle='modal' data-bs-target='#modalEditarCampo' data-name-campo='$nombre_campo'><i class='fas fa-pen fa-lg'></i></a> &nbsp;
+                                    <a type='button' data-bs-toggle='modal' data-bs-target='#modalEliminarCampo' data-name-campo='$nombre_campo'><i class='fas fa-trash text-danger fa-lg'></i></a>
+                                </td>";
                     
                                 echo "</tr><tr>";
                             }
@@ -105,7 +113,7 @@ ob_start();
     </div>
     
 
-    <!-- Ventana modal para añadir nuevo registro -->
+    <!-- Ventana modal para añadir nuevo campo -->
     <div class="modal fade" id="modalAgregar" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -123,46 +131,173 @@ ob_start();
                             <label for="campo_id">Campo ID: </label>
                             <input type="text" name="campo_id" id="campo_id" class="input-text" required>
                         </div>
-                        <div class="form-group">
-                            <button  onclick="agregar_tabla()" class="btn btn-success">Guardar</button>
-                        </div>
                     </form>
+                </div>
+                
+                <div class="modal-footer">
+                    <div class="form-group">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="button"  onclick="agregar_tabla()" class="btn btn-primary">Guardar</button>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Ventana modal para eliminar nuevo registro -->
+
+    <!-- Ventana modal para eliminar campo -->
     <div class="modal fade" id="modalEliminar" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h4 class="modal-title">Eliminar Tabla</h4>
+                    <h5 class="modal-title">Eliminar Tabla</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <form id="form_eliminar_tabla" class="form">
-                        <p class="text">Se eliminará permanentemente. ¿Continuar?</p>
-                        <input type="text" id="tabla_nombre" name="tabla_nombre">
-                        <div class="form-group">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                            <button onclick="eliminar_tabla()" class="btn btn-danger">Eliminar</button>
-                        </div>
+                    <!-- Aquí se cargarán los datos del registro a eliminar -->
+                    <p>¿Estás seguro de que deseas eliminar esta tabla?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <form id="formEliminar">
+                        <!-- Pasar el nombre de la columna de identificación única como valor -->
+                        <input type="hidden" id="eliminar_nombre_tabla" name="eliminar_nombre_tabla">
+                        <button type="button" class="btn btn-danger" onclick="eliminar_tabla()">Eliminar</button>
                     </form>
                 </div>
             </div>
         </div>
     </div>
+    
 
-    <script>
-    // Función para capturar el ID del registro seleccionado
-        $('#modalEliminar').on('show.bs.modal', function (event) {
-            var button = $(event.relatedTarget);
-            var tableName = button.data('table');
-            var modal = $(this);
-            modal.find('#tabla_nombre').val(tableName);
-        });
-    </script>
+    <!-- MODALES PARA CAMPOS -->
+
+    <!-- Ventana modal para agregar campo -->
+    <div class="modal fade" id="modalAgregarCampo" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+
+                <div class="modal-header">
+                    <h5 class="modal-title">Agregar Campo</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+
+                <div class="modal-body">
+                    <form class="form" id="formAgregarCampo">
+                        <h4>Agregar Campo</h4>
+                        <div class="form-group">
+                            <label for="columna">Nombre de la Columna:</label>
+                            <input type="text" name="columna" id="agregar_campo_columna" class="input-text" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="tipo_dato">Tipo de Dato:</label>
+                            <select name="tipo_dato" class="select tipo_dato" id="agregar_campo_tipo_dato" required>
+                                <option value="INT">INT</option>
+                                <option value="VARCHAR" selected>VARCHAR</option>
+                                <option value="FLOAT">FLOAT</option>
+                                <option value="DATE">DATE</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="longitud">Longitud:</label>
+                            <input type="number" name="longitud" class="longitud input-text" id="agregar_campo_longitud" disabled>
+                        </div>
+                        <div class="form-group">
+                            <button onclick="agregar_campo(event)" class="btn btn-success btn-submit">Guardar</button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="modal-footer">
+                    <div class="form-group">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="button" class="btn btn-primary" onclick="modificar_registro('<?php echo $table; ?>')">Guardar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+    <!-- Ventana modal para editar campo -->
+    <div class="modal fade" id="modalEditarCampo" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+
+                <div class="modal-header">
+                    <h5 class="modal-title">Editar Campo</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+
+                <div class="modal-body">
+                    <form class="form" id="formEditarCampo">
+                        <h4>Modificar Campo</h4>
+                        <div class="form-group">
+                            <label for="columna">Nombre de la Columna:</label>
+                            <input type="text" name="columna" id="columna" class="input-text" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="nueva_columna">Nuevo Nombre de la Columna:</label>
+                            <input type="text" name="nueva_columna" id="nueva_columna" class="input-text" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="tipo_dato">Tipo de Dato:</label>
+                            <select name="tipo_dato"  class="select tipo_dato" required>
+                                <option value="INT">INT</option>
+                                <option value="VARCHAR" selected>VARCHAR</option>
+                                <option value="FLOAT">FLOAT</option>
+                                <option value="DATE">DATE</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="longitud">Longitud:</label>
+                            <input type="number" name="longitud" class="longitud" class="input-text" disabled>
+                        </div>
+                        <div class="form-group">
+                            <button onclick="modificar_campo(event)" class="btn btn-danger btn-submit">Eliminar</button>
+                        </div>
+                        
+                    </form>
+                </div>
+
+                <div class="modal-footer">
+                    <div class="form-group">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="button" class="btn btn-primary" onclick="modificar_registro('<?php echo $table; ?>')">Guardar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+    <!-- Ventana modal para eliminar campo -->
+    <div class="modal fade" id="modalEliminarCampo" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Eliminar Campo</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <!-- Aquí se cargarán los datos del registro a eliminar -->
+                    <p>¿Estás seguro de que deseas eliminar este campo?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <form id="formEliminar">
+                        <!-- Pasar el nombre de la columna de identificación única como valor -->
+                        <input type="text" id="eliminar_nombre_campo" name="eliminar_nombre_campo">
+                        <button type="button" class="btn btn-danger" onclick="eliminar_campo()">Eliminar</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    
 
     
     <script src="js/main.js"></script>
@@ -180,5 +315,28 @@ ob_start();
     <script src="script.js"></script>
      <!-- Incluir Bootstrap JS -->
      <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+
+     <script>
+    // Función para capturar el ID del registro seleccionado
+        $('#modalEliminar').on('show.bs.modal', function (event) {
+            var button = $(event.relatedTarget);
+            var name_table = button.data('name');
+            var modal = $(this);
+            // console.log(name_table);
+            modal.find('#eliminar_nombre_tabla').val(name_table);
+        });
+
+        //Campos
+
+
+        
+        $('#modalEliminarCampo').on('show.bs.modal', function (event) {
+            var button = $(event.relatedTarget);
+            var name_campo = button.data('name-campo');
+            var modal = $(this);
+            // console.log(name_table);
+            modal.find('#eliminar_nombre_campo').val(name_campo);
+        });
+    </script>
 </body>
 </html>

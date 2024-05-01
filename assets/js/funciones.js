@@ -75,54 +75,93 @@ function agregar_tabla(){
 	var name_table  = $("#name_table").val();
 	var campo_id  = $("#campo_id").val();
 
+	var continua = 1;
 
-	$.post("controller.php",
+	//Verificar que los campos no estén vacíos
+    if(name_table.trim() === '' || campo_id.trim() === ''){
+        continua = 0;
+    }
+
+
+	if(continua == 1){
+		$.post("controller.php",
 		{ 	action 					: "agregar_tabla",
 				name_table 		: name_table,
 				campo_id 		: campo_id 
 		}, end_agregar_tabla);
+	} else{
+		Swal.fire({
+			icon: 'error',
+			title: '¡Error!',
+			text: "Llena todos los campos.",
+			timer: 1000,
+			timerProgressBar: true,
+		})
+	}
+	
 }
+
+
 function end_agregar_tabla(xml){	   
 	$(xml).find("response").each(function(i){		 
 		if ($(this).find("result").text()=="ok"){ 
-			$("#table_tablas").load(location.href + " #table_tablas"); 
-			swal("¡Correcto!", $(this).find("result_text").text(), "success");
+			$('#modalAgregar').modal('hide');
+			$("#table_tablas").load(location.href + " #table_tablas");
+			Swal.fire({
+				icon: 'success',
+				title: '¡Correcto!',
+				text: $(this).find("result_text").text(),
+				timer: 1000,
+				timerProgressBar: true,
+			}) 
 		}else{
-			swal("Error", $(this).find("result_text").text(), "error");
+			Swal.fire({
+				icon: 'error',
+				title: '¡Error!',
+				text: $(this).find("result_text").text(),
+				timer: 1000,
+				timerProgressBar: true,
+			})
 		}
 	});
 }
 
 
-function eliminar_tabla(nombre_tabla){
+function eliminar_tabla(){
+	var nombre_tabla = $("#eliminar_nombre_tabla").val();
 
 	// console.log(nombre_tabla);
 
-	swal({   
-		title: "¿Eliminar?",   
-		text: "Está acción no podrá revertirse.",   
-		/*type: "warning",    */
-		showCancelButton: true,    
-		confirmButtonColor: "#DD6B55",   
-		confirmButtonText: "Eliminar",  
-		cancelButtonText: "Cancelar",   
-		closeOnConfirm: true 
-	}, function(){    
-		$.post("controller.php",
-			{
-				action : "eliminar_tabla",
-				nombre_tabla			: nombre_tabla,
-			}, end_eliminar_tabla);
-	}); 
+	  
+	$.post("controller.php",
+		{
+			action : "eliminar_tabla",
+			nombre_tabla			: nombre_tabla,
+		}, end_eliminar_tabla);
+	
 }
 
 function end_eliminar_tabla(xml){
 	$(xml).find("response").each(function(i){		 
 		if ($(this).find("result").text()=="ok"){ 
+			$('#modalEliminar').modal('hide');
 			$("#table_tablas").load(location.href + " #table_tablas"); 
-			swal("¡Correcto!", $(this).find("result_text").text(), "success");
+			Swal.fire({
+				icon: 'success',
+				title: 'Correcto!',
+				text: $(this).find("result_text").text(),
+				timer: 1000,
+				timerProgressBar: true,
+			})
 		}else{
-			swal("Error", $(this).find("result_text").text(), "error");
+			$('#modalEliminar').modal('hide');
+			Swal.fire({
+				icon: 'error',
+				title: '¡Error!',
+				text: $(this).find("result_text").text(),
+				timer: 1000,
+				timerProgressBar: true,
+			})
 		}
 	});
 }
@@ -157,9 +196,21 @@ function end_agregar_campo(xml){
 		if ($(this).find("result").text()=="ok"){ 
 			$("#formAgregarCampo").trigger("reset");
 			$("#table_tablas").load(location.href + " #table_tablas"); 
-			swal("¡Correcto!", $(this).find("result_text").text(), "success");
+			Swal.fire({
+				icon: 'success',
+				title: '¡Correcto!',
+				text: $(this).find("result_text").text(),
+				timer: 1000,
+				timerProgressBar: true,
+			})
 		}else{
-			swal("Error", $(this).find("result_text").text(), "error");
+			Swal.fire({
+				icon: 'error',
+				title: '¡Error!',
+				text: $(this).find("result_text").text(),
+				timer: 1000,
+				timerProgressBar: true,
+			})
 		}
 	});
 }
@@ -182,11 +233,25 @@ function eliminar_campo(e){
 function end_eliminar_campo(xml){
 	$(xml).find("response").each(function(i){		 
 		if ($(this).find("result").text()=="ok"){ 
+			$('#modalEliminar').modal('hide');
 			$("#formEliminarCampo").trigger("reset");
 			$("#table_tablas").load(location.href + " #table_tablas"); 
-			swal("¡Correcto!", $(this).find("result_text").text(), "success");
+			Swal.fire({
+				icon: 'success',
+				title: '¡Correcto!',
+				text: $(this).find("result_text").text(),
+				timer: 1000,
+				timerProgressBar: true,
+			})
 		}else{
-			swal("Error", $(this).find("result_text").text(), "error");
+			$('#modalEliminar').modal('hide');
+			Swal.fire({
+				icon: 'error',
+				title: '¡Error!',
+				text: $(this).find("result_text").text(),
+				timer: 1000,
+				timerProgressBar: true,
+			})
 		}
 	});
 }
@@ -204,9 +269,21 @@ function end_modificar_campo(xml){
 		if ($(this).find("result").text()=="ok"){ 
 			$("#formModificarCampo").trigger("reset");
 			$("#table_tablas").load(location.href + " #table_tablas"); 
-			swal("¡Correcto!", $(this).find("result_text").text(), "success");
+			Swal.fire({
+				icon: 'success',
+				title: '¡Correcto!',
+				text: $(this).find("result_text").text(),
+				timer: 1000,
+				timerProgressBar: true,
+			})
 		}else{
-			swal("Error", $(this).find("result_text").text(), "error");
+			Swal.fire({
+				icon: 'error',
+				title: '¡Error!',
+				text: $(this).find("result_text").text(),
+				timer: 1000,
+				timerProgressBar: true,
+			})
 		}
 	});
 }
@@ -240,11 +317,12 @@ function agregar_registro(tabla){
 	} else{
 		Swal.fire({
 			icon: 'error',
-			title: 'Error!',
+			title: '¡Error!',
 			text: "Llena todos los campos.",
 			timer: 1000,
-			timerProgressBar: false,
+			timerProgressBar: true,
 		})
+		
 	}
 
 	// $.post("controller.php",
@@ -265,7 +343,7 @@ function end_agregar_registro(xml){
 					title: '¡Correcto!',
 					text: $(this).find("result_text").text(),
 					timer: 1000,
-					timerProgressBar: false,
+					timerProgressBar: true,
 				})
 			setTimeout(function() {
 				location.reload();
@@ -276,10 +354,10 @@ function end_agregar_registro(xml){
 			
 			Swal.fire({
 				icon: 'error',
-				title: 'Error!',
+				title: '¡Error!',
 				text: $(this).find("result_text").text(),
 				timer: 1000,
-				timerProgressBar: false,
+				timerProgressBar: true,
 			})
 		}
 	});
@@ -319,10 +397,10 @@ function modificar_registro(tabla){
 	} else{
 		Swal.fire({
 			icon: 'error',
-			title: 'Error!',
+			title: '¡Error!',
 			text: "Llena todos los campos.",
 			timer: 1000,
-			timerProgressBar: false,
+			timerProgressBar: true,
 		})
 	}
 
@@ -340,7 +418,7 @@ function end_modificar_registro(xml){
 					title: '¡Correcto!',
 					text: $(this).find("result_text").text(),
 					timer: 1000,
-					timerProgressBar: false,
+					timerProgressBar: true,
 				})
 			setTimeout(function() {
 				location.reload();
@@ -351,10 +429,10 @@ function end_modificar_registro(xml){
 			
 			Swal.fire({
 				icon: 'error',
-				title: 'Error!',
+				title: '¡Error!',
 				text: $(this).find("result_text").text(),
 				timer: 1000,
-				timerProgressBar: false,
+				timerProgressBar: true,
 			})
 		}
     });
@@ -391,7 +469,7 @@ function end_eliminar_registro(xml){
 				title: '¡Correcto!',
 				text: $(this).find("result_text").text(),
 				timer: 1000,
-				timerProgressBar: false,
+				timerProgressBar: true,
 			})
 
 			setTimeout(function() {
@@ -399,12 +477,13 @@ function end_eliminar_registro(xml){
 			}, 1000);
 			
 		}else{
+			$('#modalEliminar').modal('hide');
 			Swal.fire({
 				icon: 'error',
-				title: 'Error!',
+				title: '¡Error!',
 				text: $(this).find("result_text").text(),
 				timer: 1000,
-				timerProgressBar: false,
+				timerProgressBar: true,
 			})
 		}
 	});

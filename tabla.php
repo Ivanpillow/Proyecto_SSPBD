@@ -175,9 +175,14 @@ ob_start();
                             }
                         }
                         ?>
-                        <button type="button" class="btn btn-primary" onclick='agregar_registro("<?php echo $table; ?>")'>Guardar</button>
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        
                     </form>
+                </div>
+                <div class="modal-footer">
+                    <div class="form-group">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="button" class="btn btn-primary" onclick='agregar_registro("<?php echo $table; ?>")'>Guardar</button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -230,9 +235,14 @@ ob_start();
                             }
                         }
                         ?>
+                        
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <div class="form-group">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
                         <button type="button" class="btn btn-primary" onclick="modificar_registro('<?php echo $table; ?>')">Guardar</button>
-                    </form>
+                    </div>
                 </div>
             </div>
         </div>
@@ -308,7 +318,7 @@ ob_start();
             var button = $(event.relatedTarget);
             var id = button.data('id');
             var modal = $(this);
-            console.log(id);
+            // console.log(id);
             modal.find('#eliminar_id_registro').val(id);
         });
 
@@ -317,7 +327,7 @@ ob_start();
             var button = $(event.relatedTarget);
             var id = button.data('id');
             var modal = $(this);
-            console.log(id);
+            // console.log(id);
             modal.find('#editar_id_registro').val(id);
         });
     </script>
