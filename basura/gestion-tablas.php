@@ -29,7 +29,7 @@
                         <a class="nav-link active" aria-current="page" href="gestion-tablas">Gestión de Tablas</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link " aria-current="page" href="gestion-registros">Gestión de Registros</a>
+                        <a class="nav-link " aria-current="page" href="estructura-de-tablas">Estructura de Tablas</a>
                     </li>
                     
                 </ul>

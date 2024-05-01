@@ -1,6 +1,7 @@
 // $("#btn_login").click(inicia_sesion);
 // $("#btn_registro").click(registro_user);
 
+
 //index
 $(".tipo_dato").change(function(){
     if($(this).val() == "VARCHAR"){
@@ -188,6 +189,256 @@ function end_eliminar_campo(xml){
 			swal("Error", $(this).find("result_text").text(), "error");
 		}
 	});
+}
+
+
+
+
+// ESTO FALTAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+function modificar_campo(){
+
+}
+
+function end_modificar_campo(xml){
+	$(xml).find("response").each(function(i){		 
+		if ($(this).find("result").text()=="ok"){ 
+			$("#formModificarCampo").trigger("reset");
+			$("#table_tablas").load(location.href + " #table_tablas"); 
+			swal("¡Correcto!", $(this).find("result_text").text(), "success");
+		}else{
+			swal("Error", $(this).find("result_text").text(), "error");
+		}
+	});
+}
+
+
+function agregar_registro(tabla){
+	var continua = 1;
+	var formData = {};
+	
+    $('#form_nuevo_registro input').each(function(){
+		//Obtener el nombre del campo y su valor
+        var nombreCampo = $(this).attr('name');
+        var valorCampo = $(this).val();
+
+		if(valorCampo === ''){
+			// console.log("Campo vacio: ")
+			// console.log(valorCampo)
+            continua = 0;
+        } else{
+            formData[nombreCampo] = valorCampo;
+		}
+
+        
+    });
+
+	formData['tabla'] = tabla;
+	formData['action'] = 'agregar_registro';
+
+	if(continua == 1){
+		$.post("controller.php", formData, end_agregar_registro);
+	} else{
+		Swal.fire({
+			icon: 'error',
+			title: 'Error!',
+			text: "Llena todos los campos.",
+			timer: 1000,
+			timerProgressBar: false,
+		})
+	}
+
+	// $.post("controller.php",
+	// { 	action 					: "agregar_registro",
+	// 	tabla 					: tabla,
+	// }, end_agregar_registro);
+}
+
+function end_agregar_registro(xml){
+	$(xml).find("response").each(function(i){		 
+		if ($(this).find("result").text()=="ok"){ 
+			// $('#container_tabla').load('tabla/'+$(this).find("tabla").text()); //Recargar tabla con nuevo registro
+			$("#form_nuevo_registro")[0].reset(); //Limpiar formulario
+			$('#modalAgregar').modal('hide');
+
+			Swal.fire({
+					icon: 'success',
+					title: '¡Correcto!',
+					text: $(this).find("result_text").text(),
+					timer: 1000,
+					timerProgressBar: false,
+				})
+			setTimeout(function() {
+				location.reload();
+			}, 1000);
+			
+			
+		}else{
+			
+			Swal.fire({
+				icon: 'error',
+				title: 'Error!',
+				text: $(this).find("result_text").text(),
+				timer: 1000,
+				timerProgressBar: false,
+			})
+		}
+	});
+}
+
+
+
+function modificar_registro(tabla){
+	console.log("Llega aqui");
+	var nombre_id = $("#editar_nombre_id").val();
+	var id_registro = $("#editar_id_registro").val();
+
+	var continua = 1;
+	var formData = {};
+	
+    $('#form_editar_registro input').each(function(){
+		//Obtener el nombre del campo y su valor
+        var nombreCampo = $(this).attr('name');
+        var valorCampo = $(this).val();
+
+		if(valorCampo === ''){
+			// console.log("Campo vacio: ")
+			// console.log(valorCampo)
+            continua = 0;
+        } else{
+            formData[nombreCampo] = valorCampo;
+		}
+
+        
+    });
+
+	formData['tabla'] = tabla;
+	formData['action'] = 'modificar_registro';
+
+	if(continua == 1){
+		$.post("controller.php", formData, end_modificar_registro);
+	} else{
+		Swal.fire({
+			icon: 'error',
+			title: 'Error!',
+			text: "Llena todos los campos.",
+			timer: 1000,
+			timerProgressBar: false,
+		})
+	}
+
+}
+
+function end_modificar_registro(xml){
+	
+    $(xml).find("response").each(function(){
+        if ($(this).find("result").text()=="ok"){ 
+			$("#form_editar_registro")[0].reset(); //Limpiar formulario
+			$('#modalEditar').modal('hide');
+
+			Swal.fire({
+					icon: 'success',
+					title: '¡Correcto!',
+					text: $(this).find("result_text").text(),
+					timer: 1000,
+					timerProgressBar: false,
+				})
+			setTimeout(function() {
+				location.reload();
+			}, 1000);
+			
+			
+		}else{
+			
+			Swal.fire({
+				icon: 'error',
+				title: 'Error!',
+				text: $(this).find("result_text").text(),
+				timer: 1000,
+				timerProgressBar: false,
+			})
+		}
+    });
+}
+
+
+
+
+
+function eliminar_registro(){
+	var tabla = $("#eliminar_nombre_tabla").val();
+	var nombre_id_registro = $("#eliminar_nombre_id").val();
+	var id_registro = $("#eliminar_id_registro").val();
+
+	// console.log(tabla);
+	// console.log(nombre_id_registro);
+	// console.log(id_registro);
+
+	$.post("controller.php",
+	{ 			action 					: "eliminar_registro",
+				tabla 					: tabla,
+				nombre_id_registro		: nombre_id_registro,
+				id_registro 			: id_registro,
+	}, end_eliminar_registro);
+}
+
+function end_eliminar_registro(xml){
+	$(xml).find("response").each(function(i){		 
+		if($(this).find("result").text()=="ok"){ 
+			$('#modalEliminar').modal('hide');
+			
+			Swal.fire({
+				icon: 'success',
+				title: '¡Correcto!',
+				text: $(this).find("result_text").text(),
+				timer: 1000,
+				timerProgressBar: false,
+			})
+
+			setTimeout(function() {
+				location.reload();
+			}, 1000);
+			
+		}else{
+			Swal.fire({
+				icon: 'error',
+				title: 'Error!',
+				text: $(this).find("result_text").text(),
+				timer: 1000,
+				timerProgressBar: false,
+			})
+		}
+	});
+}
+
+function llenar_form_tabla(nombre_tabla, id_columna){
+	// console.log(nombre_tabla);
+	// console.log(id_columna);
+
+	$.post("controller.php",
+	{ 			action 				: "llenar_form_tabla",
+				nombre_tabla		: nombre_tabla,
+				id_columna 			: id_columna,
+	}, end_llenar_form_tabla);
+}
+
+function end_llenar_form_tabla(xml){
+    $(xml).find("response").each(function(){
+        if($(this).find("result").text() == "ok"){
+            var cuantos_campos = parseInt($(this).find("cuantos_campos").text());
+            var campos_json = $(this).find("nombres_campos").text();
+            var registros_json = $(this).find("registros_campos").text();
+
+            var campos = JSON.parse(campos_json);
+            var registros = JSON.parse(registros_json);
+
+            for(var i = 0; i < cuantos_campos; i++){
+                var nombre_campo = campos[i];
+                var valor_campo = registros[i];
+
+                $('#editar_' + nombre_campo).val(valor_campo);
+            }
+        }
+    });
 }
 
 

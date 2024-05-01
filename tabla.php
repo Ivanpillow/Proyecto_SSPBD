@@ -18,7 +18,7 @@ ob_start();
 	<link href="assets/plugins/sweetalert/sweetalert.css" rel="stylesheet" type="text/css"> <!-- Swal -->
 	<script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script> <!-- Swal -->
 </head>
-<body>
+<body id="body">
 
     <?php
     
@@ -53,7 +53,7 @@ ob_start();
                         <a class="nav-link active" aria-current="page" href="index">Inicio</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link " aria-current="page" href="gestion-registros">Gestión de Registros</a>
+                        <a class="nav-link " aria-current="page" href="estructura-de-tablas">Estructura de Tablas</a>
                     </li>
                     
                 </ul>
@@ -61,16 +61,16 @@ ob_start();
         </div>
     </nav>
         
-    <div class="container">
+    <div class="container" id="container_tabla">
         <h1>Punto de Venta de Tenis</h1>
         <h2>Tabla <?php echo $table; ?></h2>
         <div class="container">
         <input id="nombre_tabla" type="hidden" value="<?php echo $table; ?>">
-            <button class="btn btn-success text-white" type="button" data-bs-toggle='modal' data-bs-target='#modalAgregar' data-bs-whatever="@mdo">Nuevo registro</button>
+            <button class="btn btn-success text-white" type="button" data-bs-toggle="modal" data-bs-target="#modalAgregar" data-bs-whatever="@mdo">Nuevo registro</button>
             
             <div class="row justify-content-center mt-3">
-                <div class="col-8">
-                    <table border='1' class="table" id="table_tablas">
+                <div class="col-xl-8">
+                    <table border='1' class="table table-striped" id="table_tablas">
                         <thead>
                             <tr>
                                 <?php
@@ -92,7 +92,7 @@ ob_start();
                     </table>
                 </div>
                 
-                <div class="col-4">
+                <div class="col-xl-4">
                     <h4 class="text">Ordenar por:</h4>
                     <select id="select_ordenamiento" class="select">
                         <option value="1">ID de menor a mayor</option>
@@ -142,55 +142,138 @@ ob_start();
     </div>
     
 
-    <!-- Ventana modal para añadir nuevo registro -->
-    <div class="modal fade" id="modalAgregar" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+   <!-- Ventana modal para añadir nuevo registro -->
+   <div class="modal fade" id="modalAgregar" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h4 class="modal-title">Agregar Tabla</h4>
+                    <h1 class="modal-title fs-5" id="exampleModalLabel">Añadir Nuevo Registro</h1>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <form id="form_agregar_tabla" class="form">
-                        <div class="form-group">
-                            <label for="name_table">Tabla: </label>
-                            <input type="text" name="name_table" id="name_table" class="input-text" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="campo_id">Campo ID: </label>
-                            <input type="text" name="campo_id" id="campo_id" class="input-text" required>
-                        </div>
-                        <div class="form-group">
-                            <button  onclick="agregar_tabla()" class="btn btn-success">Guardar</button>
-                        </div>
+                    <form id="form_nuevo_registro">
+                        <input type="hidden" name="tabla" value="<?php echo $table; ?>">
+                        <?php
+                        // Obtener los nombres de las columnas de la tabla
+                        $query_columns = "SHOW COLUMNS FROM $table";
+                        $result_columns = DatasetSQL($query_columns);
+
+                        if ($result_columns && $result_columns->num_rows > 0) {
+                            // Contador para omitir el primer campo
+                            $contador = 0;
+                            while ($fila = mysqli_fetch_array($result_columns)) {
+                                $columna = $fila['Field'];
+                                // Omitir el primer campo
+                                if ($contador > 0) {
+                                    // Mostrar un campo de entrada para cada columna de la tabla
+                                    echo "<div class='mb-3'>";
+                                    echo "<label for='$columna' class='form-label' id='add_$columna'>$columna:</label>";
+                                    echo "<input type='text' class='form-control' id='$columna' name='$columna'>";
+                                    echo "</div>";
+                                }
+                                $contador++;
+                            }
+                        }
+                        ?>
+                        <button type="button" class="btn btn-primary" onclick='agregar_registro("<?php echo $table; ?>")'>Guardar</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
                     </form>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Ventana modal para eliminar nuevo registro -->
+    <!-- Ventana modal para editar registro -->
+    <div class="modal fade" id="modalEditar" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Editar Registro</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="form_editar_registro">
+                        <?php 
+                        // Obtener el nombre de la columna de identificación única
+                        $query_id_column = "SHOW KEYS FROM $table WHERE Key_name = 'PRIMARY'";
+                        $result_id_column = DatasetSQL($query_id_column);
+                        $id_column_name = '';
+                        if($result_id_column->num_rows > 0) {
+                            $row_id_column = mysqli_fetch_array($result_id_column);
+                            $id_column_name = $row_id_column['Column_name'];
+                        }
+                        ?>
+                        <input type="hidden" id="editar_nombre_id" name="editar_nombre_id" value="<?php echo $id_column_name; ?>">
+                        <input type="hidden" id="editar_id_registro" name="editar_id_registro" value="">
+                        <input type="hidden" id="tabla" name="tabla" value="<?php echo $table; ?>">
+                        <?php
+                        // Obtener los nombres de las columnas de la tabla
+                        $query_columns = "SHOW COLUMNS FROM $table";
+                        $result_columns = DatasetSQL($query_columns);
+
+                        
+
+                        if ($result_columns && $result_columns->num_rows > 0) {
+                            // Contador para omitir el primer campo
+                            $contador = 0;
+                            while ($fila = mysqli_fetch_array($result_columns)) {
+                                $columna = $fila['Field'];
+                                // Omitir el primer campo
+                                if($contador > 0){
+                                    // Mostrar un campo de entrada para cada columna de la tabla
+                                    echo "<div class='mb-3'>";
+                                    echo "<label for='$columna' class='form-label' id='label_editar_$columna'>$columna:</label>";
+                                    echo "<input type='text' class='form-control' id='editar_$columna' name='$columna'>";
+                                    echo "</div>";
+                                }
+                                $contador++;
+                            }
+                        }
+                        ?>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="button" class="btn btn-primary" onclick="modificar_registro('<?php echo $table; ?>')">Guardar</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Ventana modal para eliminar registro -->
     <div class="modal fade" id="modalEliminar" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h4 class="modal-title">Eliminar Tabla</h4>
+                    <h5 class="modal-title">Eliminar Registro</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <form id="form_eliminar_tabla" class="form">
-                        <p class="text">Se eliminará permanentemente. ¿Continuar?</p>
-                        <input type="text" id="tabla_nombre" name="tabla_nombre">
-                        <div class="form-group">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                            <button onclick="eliminar_tabla()" class="btn btn-danger">Eliminar</button>
-                        </div>
+                    <!-- Aquí se cargarán los datos del registro a eliminar -->
+                    <p>¿Estás seguro de que deseas eliminar este registro?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <!-- Formulario para enviar la solicitud de eliminación -->
+                    <?php
+                    // Obtener el nombre de la columna de identificación única
+                    $query_id_column = "SHOW KEYS FROM $table WHERE Key_name = 'PRIMARY'";
+                    $result_id_column = DatasetSQL($query_id_column);
+                    $id_column_name = '';
+                    if($result_id_column->num_rows > 0) {
+                        $row_id_column = mysqli_fetch_array($result_id_column);
+                        $id_column_name = $row_id_column['Column_name'];
+                    }
+                    ?>
+                    <form id="formEliminar">
+                        <!-- Pasar el nombre de la columna de identificación única como valor -->
+                        <input type="hidden" id="eliminar_nombre_id" name="eliminar_nombre_id" value="<?php echo $id_column_name; ?>">
+                        <input type="hidden" id="eliminar_nombre_tabla" name="eliminar_nombre_tabla" value="<?php echo $table; ?>">
+                        <input type="hidden" id="eliminar_id_registro" name="eliminar_id_registro" value="">
+                        <button type="button" class="btn btn-danger" onclick="eliminar_registro()">Eliminar</button>
                     </form>
                 </div>
             </div>
         </div>
     </div>
-
 
     
 
@@ -220,12 +303,22 @@ ob_start();
             
         });
 
-    // Función para capturar el ID del registro seleccionado
+        // Función para capturar el ID del registro seleccionado
         $('#modalEliminar').on('show.bs.modal', function (event) {
             var button = $(event.relatedTarget);
-            var tableName = button.data('table');
+            var id = button.data('id');
             var modal = $(this);
-            modal.find('#tabla_nombre').val(tableName);
+            console.log(id);
+            modal.find('#eliminar_id_registro').val(id);
+        });
+
+        // Función para capturar el ID del registro seleccionado
+        $('#modalEditar').on('show.bs.modal', function (event) {
+            var button = $(event.relatedTarget);
+            var id = button.data('id');
+            var modal = $(this);
+            console.log(id);
+            modal.find('#editar_id_registro').val(id);
         });
     </script>
 </body>

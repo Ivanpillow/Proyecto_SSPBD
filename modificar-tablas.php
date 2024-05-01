@@ -55,7 +55,7 @@ ob_start();
                         <a class="nav-link" aria-current="page" href="index">Inicio</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" aria-current="page" href="gestion-registros">Gestión de Registros</a>
+                        <a class="nav-link " aria-current="page" href="estructura-de-tablas">Estructura de Tablas</a>
                     </li>
                     
                 </ul>

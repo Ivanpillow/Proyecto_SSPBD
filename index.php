@@ -35,7 +35,7 @@ ob_start();
                         <a class="nav-link active" aria-current="page" href="index">Inicio</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link " aria-current="page" href="gestion-registros">Gestión de Registros</a>
+                        <a class="nav-link " aria-current="page" href="estructura-de-tablas">Estructura de Tablas</a>
                     </li>
                     
                 </ul>
@@ -45,121 +45,52 @@ ob_start();
         
     <div class="container">
         <h1>Punto de Venta de Tenis</h1>
-        <h2>Tablas Existentes</h2>
+        <h2>Registros</h2>
         <div class="container">
-            <button class="btn btn-success text-white" type="button" data-bs-toggle='modal' data-bs-target='#modalAgregar' data-bs-whatever="@mdo">Nueva tabla</button>
+            <!-- <button class="btn btn-success text-white" type="button" data-bs-toggle='modal' data-bs-target='#modalAgregar' data-bs-whatever="@mdo">Nueva tabla</button> -->
             <div class="row justify-content-center">
                 <div class="col-8">
-                    <table border='1' class="table" id="table_tablas">
-                        <tr>
-                            <th>Opciones</th>
-                            <th>Tabla</th>
-                            <th>Columna</th>
-                            <th>Tipo de Dato</th>
-                            <th>Llave Primaria</th>
-                        </tr>
-                        <?php
-                        $query = "SHOW TABLES";
-                        $result = DatasetSQL($query);
+                    <table class="table table-striped">
+                        <thead class="thead-dark">
+                            <tr>
+                                <th scope="col">Tabla</th>
+                                <th scope="col">N° Columnas</th>
+                                <th scope="col">N° Registros</th>
+                                <th scope="col">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php
+                            $query1 = "SHOW TABLES";
+                            $result = DatasetSQL($query1);
 
-                        while($row = mysqli_fetch_array($result)){
-                            $table = $row[0];
-                    
-                            $query_table_info = "DESCRIBE $table";
-                            $result_table_info = DatasetSQL($query_table_info);
-                    
-                            
-                            // <a class='btn btn-success' onclick=''>Editar tabla</a>
-                            // <a class='btn btn-danger' onclick=''>Borrar tabla</a>
-                            
-                            echo "<tr>
-                            <td rowspan='" . $result_table_info->num_rows . "'>
-                                <button class='btn btn-secondary text-white' type='button' onclick=\"redirect_modificar_tabla('$table')\"><i class='fas fa-pen'></i> Editar tabla</button> <br><br>
-                                <button class='btn btn-danger text-white' type='button' onclick=\"eliminar_tabla('$table')\"><i class='fas fa-trash'></i> Borrar tabla</button> 
-                            </td>";
 
-                           echo " <td rowspan='" . $result_table_info->num_rows . "'><a href='tabla/$table'>$table</a></td>";
-                    
-                            while ($row_table_info = mysqli_fetch_array($result_table_info)){
-                                echo "<td>".$row_table_info['Field']."</td>";
-                                echo "<td>".$row_table_info['Type']."</td>";
-                    
-                                if($row_table_info['Key'] == "PRI"){
-                                    echo "<td>Sí</td>";
-                                } else{
-                                    echo "<td>No</td>";
-                                }
-                    
-                                echo "</tr><tr>";
+                            while($row = mysqli_fetch_array($result)){
+                                $table = $row[0];
+
+                                $query2 = "SHOW COLUMNS FROM $table";
+                                $result2 = DatasetSQL($query2);
+
+                                $num_columnas = $result2->num_rows;
+
+                                $query3 = "SELECT COUNT(*) AS cuantos FROM $table";
+                                $cuantos_registros = GetValueSQL($query3, 'cuantos');
+
+                                echo "<tr>";
+                                echo "<td>$table</td>";
+                                echo "<td>$num_columnas</td>";
+                                echo "<td>$cuantos_registros</td>";
+                                echo "<td><a href='tabla/$table'>Ver registros</a></td>";
+                                echo "</tr>";
                             }
-                            echo "</tr>";
-                        }
-                        ?>
+                            ?>
+                        </tbody>
                     </table>
                 </div>
             </div>
         </div>
     </div>
     
-
-    <!-- Ventana modal para añadir nuevo registro -->
-    <div class="modal fade" id="modalAgregar" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h4 class="modal-title">Agregar Tabla</h4>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <form id="form_agregar_tabla" class="form">
-                        <div class="form-group">
-                            <label for="name_table">Tabla: </label>
-                            <input type="text" name="name_table" id="name_table" class="input-text" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="campo_id">Campo ID: </label>
-                            <input type="text" name="campo_id" id="campo_id" class="input-text" required>
-                        </div>
-                        <div class="form-group">
-                            <button  onclick="agregar_tabla()" class="btn btn-success">Guardar</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Ventana modal para eliminar nuevo registro -->
-    <div class="modal fade" id="modalEliminar" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h4 class="modal-title">Eliminar Tabla</h4>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <form id="form_eliminar_tabla" class="form">
-                        <p class="text">Se eliminará permanentemente. ¿Continuar?</p>
-                        <input type="text" id="tabla_nombre" name="tabla_nombre">
-                        <div class="form-group">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                            <button onclick="eliminar_tabla()" class="btn btn-danger">Eliminar</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <script>
-    // Función para capturar el ID del registro seleccionado
-        $('#modalEliminar').on('show.bs.modal', function (event) {
-            var button = $(event.relatedTarget);
-            var tableName = button.data('table');
-            var modal = $(this);
-            modal.find('#tabla_nombre').val(tableName);
-        });
-    </script>
 
     
     <script src="js/main.js"></script>

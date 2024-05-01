@@ -28,6 +28,9 @@
                     <li class="nav-item">
                         <a class="nav-link active" aria-current="page" href="gestion-registros">Gestión de Registros</a>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link " aria-current="page" href="estructura-de-tablas">Estructura de Tablas</a>
+                    </li>
                     
                 </ul>
             </div>
