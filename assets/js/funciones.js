@@ -527,12 +527,38 @@ function end_llenar_form_tabla(xml){
 function ver_detalles_venta(id_venta, e){
 	e.preventDefault();
 
-	$("#detalles_venta_"+id_venta).toggle('slow');
+	// console.log(id_venta);
+	
+
+	$("#detalles_venta_"+id_venta).toggle('fast');
+	$("#detalles_venta_tabla_"+id_venta).toggle('fast');
+
+	//Falta hacer que se abra los detalles de la venta, sólo en el llenar_tabla del controller
+
 
 }
 
 
+function llenar_tabla_ventas(){
+	var select_ventas = $("#select_ventas").val();
 
+
+	$.post("controller.php",
+	{ 			action 					: "llenar_tabla_ventas",
+				select_ventas 			: select_ventas,
+	}, end_llenar_tabla_ventas);
+}
+
+function end_llenar_tabla_ventas(xml){
+    $(xml).find("response").each(function(){
+        if($(this).find("result").text() == "ok"){
+            $("#tabla_ventas").html($(this).find("tabla_ventas").text());
+
+			$("#total_vendido").html("Total vendido: $" +$(this).find("total_vendido").text());
+
+        }
+    });
+}
 
 
 

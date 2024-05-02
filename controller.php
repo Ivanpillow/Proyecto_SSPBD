@@ -492,4 +492,132 @@ if(Requesting("action")=="llenar_form_tabla"){
 }
 
 
+if(Requesting("action")=="llenar_tabla_ventas"){
+	$select_ventas = Requesting("select_ventas");
+	// echo $select_ventas;
+
+	$resultStatus = "ok"; 
+    $resultText = "Correcto.";
+
+	$xmlRow = "";
+
+	if($select_ventas != 1){
+		$primer_dia_mes = date('Y-m-01', strtotime($select_ventas));
+   	 	$ultimo_dia_mes = date('Y-m-t', strtotime($select_ventas));
+	}
+
+	if($select_ventas == 1){
+		$query1 = "SELECT COUNT(*) AS existe FROM ventas 
+		INNER JOIN clientes ON ventas.id_cliente = clientes.id_cliente
+		INNER JOIN empleados ON ventas.id_empleado = empleados.id_empleado";
+	} else{
+		$query1 = "SELECT COUNT(*) AS existe FROM ventas 
+		INNER JOIN clientes ON ventas.id_cliente = clientes.id_cliente
+		INNER JOIN empleados ON ventas.id_empleado = empleados.id_empleado
+		WHERE ventas.fecha BETWEEN '$primer_dia_mes' AND '$ultimo_dia_mes'";
+		
+		
+		// echo $query1;
+	}
+	
+	// echo $query1;
+	$existe = GetValueSQL($query1, 'existe');
+
+	$total_vendido = 0;
+	
+	if($existe > 0){
+
+		if($select_ventas == 1){
+			$query4 = "SELECT SUM(ventas.total_venta) AS total_vendido FROM ventas";
+			$total_vendido = GetValueSQL($query4, 'total_vendido');
+
+			$query2 = "SELECT * FROM ventas 
+			INNER JOIN clientes ON ventas.id_cliente = clientes.id_cliente
+			INNER JOIN empleados ON ventas.id_empleado = empleados.id_empleado
+			ORDER BY fecha DESC";
+			
+		} else{
+			$query4 = "SELECT SUM(ventas.total_venta) AS total_vendido FROM ventas
+			WHERE ventas.fecha BETWEEN '$primer_dia_mes' AND '$ultimo_dia_mes'";
+			$total_vendido = GetValueSQL($query4, 'total_vendido');
+			// echo $query4;
+
+			
+			$query2 = "SELECT * FROM ventas 
+			INNER JOIN clientes ON ventas.id_cliente = clientes.id_cliente
+			INNER JOIN empleados ON ventas.id_empleado = empleados.id_empleado
+			WHERE ventas.fecha BETWEEN '$primer_dia_mes' AND '$ultimo_dia_mes'
+			ORDER BY fecha DESC";
+			// echo $query2;
+		}
+		
+		// echo $query2;
+		$result2 = DatasetSQL($query2);
+
+		while($row2 = mysqli_fetch_array($result2)){
+			$id_venta = $row2['id_venta'];
+			$nombre_cliente = $row2['nombre_cliente'];
+			$nombre_empleado = $row2['nombre_empleado'];
+			$fecha = $row2['fecha'];
+			$total_venta = $row2['total_venta'];
+
+			$xmlRow .=  "<tr>";
+			$xmlRow .=  "<td>$id_venta</td>";
+			$xmlRow .=  "<td>$nombre_cliente</td>";
+			$xmlRow .=  "<td>$nombre_empleado</td>";
+			$xmlRow .=  "<td>$fecha</td>";
+			$xmlRow .=  "<td>$".number_format($total_venta, 2)."</td>";
+			$xmlRow .=  "<td><a type='button' href='' onclick='ver_detalles_venta(".$id_venta.", event)'>Ver detalles</a></td>";
+			$xmlRow .=  "</tr>";
+			
+			
+			$xmlRow .= "<tr class='detalles_venta' id='detalles_venta_tabla_$id_venta;'>";
+			$xmlRow .= "<td colspan='6'>";
+			$xmlRow .= "<ul>";
+						
+						
+						$query3 ="SELECT * FROM ventas
+						INNER JOIN detalles_ventas ON ventas.id_venta = detalles_ventas.id_venta
+						INNER JOIN productos ON detalles_ventas.id_producto = productos.id_producto
+						INNER JOIN tallas ON productos.id_talla = tallas.id_talla
+						WHERE ventas.id_venta = $id_venta";
+						$detalles_ventas = DatasetSQL($query3);
+		
+						while($row3 = mysqli_fetch_array($detalles_ventas)){
+							$nombre_producto = $row3['nombre_producto'];
+							$talla = $row3['talla'];
+							$cantidad = $row3['cantidad'];
+							$precio_unitario = $row3['precio_unitario'];
+							$subtotal = $row3['subtotal'];
+		
+							$xmlRow .= "<li><strong>Producto: </strong>$nombre_producto</li>";
+							$xmlRow .=  "<strong>Talla: </strong>$talla<br>";
+							$xmlRow .=  "<strong>Cantidad: </strong>$cantidad<br>";
+							$xmlRow .=  "<strong>Precio Unitario: </strong>$".number_format($precio_unitario, 2)."<br>";
+							$xmlRow .=  "<strong>Subtotal: </strong>$".number_format($subtotal, 2)."<br>";
+							$xmlRow .=  "<br>";
+						}
+						
+					$xmlRow .=  "</ul>";
+				$xmlRow .=  "</td>";
+			$xmlRow .=  "</tr>";
+
+		
+		}
+	}
+
+	$total_vendido = number_format($total_vendido, 2);
+
+
+	$result = array( 
+		'total_vendido'			=> $total_vendido,
+		'tabla_ventas' 			=> $xmlRow, 
+		'result' 				=> $resultStatus, 
+		'result_text' 			=> $resultText
+	);		
+	XML_Envelope($result);     
+	exit;		
+}
+
+
 ?>
