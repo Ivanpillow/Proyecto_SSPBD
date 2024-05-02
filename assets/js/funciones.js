@@ -66,6 +66,9 @@ $(document).ready(function() {
     });
 
     $("#accion_tabla").change();
+
+
+	// $(".detalles_venta").hide();
 	
 });
 
@@ -518,6 +521,14 @@ function end_llenar_form_tabla(xml){
             }
         }
     });
+}
+
+
+function ver_detalles_venta(id_venta, e){
+	e.preventDefault();
+
+	$("#detalles_venta_"+id_venta).toggle('slow');
+
 }
 
 
