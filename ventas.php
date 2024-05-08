@@ -35,7 +35,7 @@ ob_start();
         <h1>Punto de Venta de Tenis</h1>
         <h2>Ventas</h2>
         <div class="container">
-            <button class="btn btn-success text-white" type="button" data-bs-toggle='modal' data-bs-target='#modalAgregar' data-bs-whatever="@mdo">Nueva venta</button>
+            <a class="btn btn-success text-white" href="nueva-venta">Nueva venta</a>
             <div class="row justify-content-center">
                 <div class="col-8">
                     <table class="table table-striped">
@@ -104,11 +104,12 @@ ob_start();
                                                 <?php 
 
                                                 $query_vista_ventas = "CREATE VIEW DetallesVenta AS
-                                                SELECT v.id_venta, dv.id_producto, p.nombre_producto, p.id_talla, t.talla, dv.cantidad, dv.precio_unitario, dv.subtotal
+                                                SELECT v.id_venta, dv.id_detalle_venta, dv.id_producto, p.nombre_producto, dv.id_producto_talla, pt.id_talla, t.talla, dv.cantidad, dv.precio_unitario, dv.subtotal
                                                 FROM ventas v
                                                 INNER JOIN detalles_ventas dv ON v.id_venta = dv.id_venta
-                                                INNER JOIN productos p ON dv.id_producto = p.id_producto
-                                                INNER JOIN tallas t ON p.id_talla = t.id_talla";
+                                                INNER JOIN producto_talla pt ON dv.id_producto_talla = pt.id_producto_talla
+                                                INNER JOIN tallas t ON pt.id_talla = t.id_talla
+                                                INNER JOIN productos p ON dv.id_producto = p.id_producto";
 
 
                                                 $query3 = "SELECT * FROM DetallesVenta WHERE id_venta = $id_venta";

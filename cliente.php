@@ -50,14 +50,11 @@ ob_start();
     <?php 
     $query_vista_info_cliente = "CREATE VIEW InformacionCliente AS
     SELECT c.nombre_cliente, c.email, c.direccion,
-           IFNULL(v.cuantas_ventas, 0) AS cuantas_ventas,
-           IFNULL(v.total_ventas, 0) AS total_ventas
+           COUNT(v.id_venta) AS total_ventas_cliente,
+           SUM(v.total_venta) AS total_venta_status_1
     FROM clientes c
-    LEFT JOIN (
-        SELECT id_cliente, COUNT(*) AS cuantas_ventas, SUM(total_venta) AS total_ventas
-        FROM ventas
-        GROUP BY id_cliente
-    ) v ON c.id_cliente = v.id_cliente";
+    LEFT JOIN ventas v ON c.id_cliente = v.id_cliente AND v.status_venta = 1
+    GROUP BY c.nombre_cliente, c.email, c.direccion;";
 
 
     $query2 = "SELECT * FROM InformacionCliente WHERE id_cliente = $id_cliente";
@@ -66,10 +63,10 @@ ob_start();
     $nombre_cliente = GetValueSQL($query2, 'nombre_cliente');
     $email = GetValueSQL($query2, 'email');
     $direccion = GetValueSQL($query2, 'direccion');
-    $cuantas_ventas = GetValueSQL($query2, 'cuantas_ventas');
+    $cuantas_ventas = GetValueSQL($query2, 'total_ventas_cliente');
 
     if($cuantas_ventas > 0){
-        $total_ventas = GetValueSQL($query2, 'total_ventas');
+        $total_ventas = GetValueSQL($query2, 'total_venta_status_1');
     } else{
         $total_ventas = 0;
     }
@@ -104,13 +101,13 @@ ob_start();
                         </thead>
                         <tbody id="tabla_ventas_cliente">
                             <?php 
-                            $query3 = "SELECT COUNT(*) AS cuantos FROM ventas WHERE id_cliente = $id_cliente";
+                            $query3 = "SELECT COUNT(*) AS cuantos FROM ventas WHERE id_cliente = $id_cliente AND status_venta = 1";
                             $cuantas_ventas = GetValueSQL($query3, 'cuantos');
 
                             if($cuantas_ventas > 0){
                                 $query4 = "SELECT * FROM ventas
                                 INNER JOIN empleados ON ventas.id_empleado = empleados.id_empleado
-                                WHERE id_cliente = $id_cliente
+                                WHERE id_cliente = $id_cliente AND status_venta = 1
                                 ORDER BY fecha DESC";
                                 $ventas_cliente = DatasetSQL($query4);
 
@@ -132,7 +129,7 @@ ob_start();
                                     ?>
 
                                     <!-- Detalles de la venta -->
-                                    <tr id="detalles_venta_<?php echo $id_venta; ?>" style='display: none;'>
+                                    <tr id="detalles_venta_<?php echo $id_venta; ?>" style="display: none;">
                                         <td colspan='6'>
                                             <ul>
                                                 
@@ -140,17 +137,21 @@ ob_start();
                                                 $query5 ="SELECT * FROM ventas
                                                 INNER JOIN detalles_ventas ON ventas.id_venta = detalles_ventas.id_venta
                                                 INNER JOIN productos ON detalles_ventas.id_producto = productos.id_producto
-                                                INNER JOIN tallas ON productos.id_talla = tallas.id_talla
                                                 WHERE ventas.id_venta = $id_venta";
                                                 $detalles_ventas = DatasetSQL($query5);
                                 
                                                 // Imprimir los detalles de la venta
                                                 while($row5 = mysqli_fetch_array($detalles_ventas)){
                                                     $nombre_producto = $row5['nombre_producto'];
-                                                    $talla = $row5['talla'];
+                                                    $id_producto_talla = $row5['id_producto_talla'];
                                                     $cantidad = $row5['cantidad'];
                                                     $precio_unitario = $row5['precio_unitario'];
                                                     $subtotal = $row5['subtotal'];
+
+                                                    $query6 = "SELECT * FROM producto_talla
+                                                    INNER JOIN tallas ON producto_talla.id_talla = tallas.id_talla
+                                                    WHERE id_producto_talla = $id_producto_talla";
+                                                    $talla = GetValueSQL($query6, 'talla');
                                 
                                                     echo "<li><strong>Producto: </strong>$nombre_producto</li>";
                                                     echo "<strong>Talla: </strong>$talla<br>";

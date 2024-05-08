@@ -619,5 +619,462 @@ if(Requesting("action")=="llenar_tabla_ventas"){
 	exit;		
 }
 
+if(Requesting("action") == "llenar_select_clientes"){
+	$resultStatus = "ok";
+	$resultText = "Correcto.";
+
+	$xmlRow = '<option value="0">Selecciona un cliente...</option>';
+
+	$query1 = "SELECT COUNT(*) AS cuantos FROM clientes WHERE status = 1";
+	$cuantos_clientes = GetValueSQL($query1, 'cuantos');
+
+	if($cuantos_clientes > 0){
+		$query2 = "SELECT * FROM clientes WHERE status = 1";
+        $clientes = DatasetSQL($query2);
+
+		while($row2 = mysqli_fetch_array($clientes)){
+			$id_cliente = $row2['id_cliente'];
+            $nombre_cliente = $row2['nombre_cliente'];
+			$xmlRow .=  "<option value='$id_cliente'>$nombre_cliente</option>";
+		}
+	}
+
+
+
+	$result = array( 
+		'select_clientes'		=> $xmlRow, 
+		'result' 				=> $resultStatus, 
+		'result_text' 			=> $resultText
+	);		
+	XML_Envelope($result);     
+	exit;	
+}
+
+if(Requesting("action") == "llenar_select_empleados"){
+	$resultStatus = "ok";
+	$resultText = "Correcto.";
+
+	$xmlRow = '<option value="0">Selecciona un empleado...</option>';
+
+	$query1 = "SELECT COUNT(*) AS cuantos FROM empleados WHERE status = 1";
+	$cuantos = GetValueSQL($query1, 'cuantos');
+
+	if($cuantos > 0){
+		$query2 = "SELECT * FROM empleados WHERE status = 1";
+        $clientes = DatasetSQL($query2);
+
+		while($row2 = mysqli_fetch_array($clientes)){
+			$id_empleado = $row2['id_empleado'];
+            $nombre_empleado = $row2['nombre_empleado'];
+			$xmlRow .=  "<option value='$id_empleado'>$nombre_empleado</option>";
+		}
+	}
+
+
+
+	$result = array( 
+		'select_empleados'		=> $xmlRow, 
+		'result' 				=> $resultStatus, 
+		'result_text' 			=> $resultText
+	);		
+	XML_Envelope($result);     
+	exit;	
+}
+
+
+
+if(Requesting("action") == "llenar_select_productos"){
+	$resultStatus = "ok";
+	$resultText = "Correcto.";
+
+	$xmlRow = '<option value="0">Selecciona un producto...</option>';
+
+	$query1 = "SELECT COUNT(*) AS cuantos FROM productos WHERE status = 1";
+	$cuantos = GetValueSQL($query1, 'cuantos');
+
+	if($cuantos > 0){
+		$query2 = "SELECT * FROM productos WHERE status = 1 ORDER BY id_producto";
+        $productos = DatasetSQL($query2);
+
+		while($row2 = mysqli_fetch_array($productos)){
+			$id_producto = $row2['id_producto'];
+            $nombre_producto = $row2['nombre_producto'];
+			$xmlRow .=  "<option value='$id_producto'>$nombre_producto</option>";
+		}
+	}
+
+
+
+	$result = array( 
+		'select_productos'		=> $xmlRow, 
+		'result' 				=> $resultStatus, 
+		'result_text' 			=> $resultText
+	);		
+	XML_Envelope($result);     
+	exit;	
+}
+
+
+
+if(Requesting("action") == "llenar_select_tallas"){
+    $id_producto = Requesting("id_producto");
+
+    $resultStatus = "ok";
+    $resultText = "Correcto.";
+
+    $xmlRow = '<option value="0">Selecciona una talla...</option>';
+
+    if($id_producto != 0){
+        $query1 = "SELECT COUNT(*) AS cuantos FROM producto_talla WHERE id_producto = $id_producto";
+        $cuantos = GetValueSQL($query1, 'cuantos');
+
+        if($cuantos > 0){
+            $query2 = "SELECT producto_talla.*, tallas.talla, tallas.status FROM producto_talla
+            INNER JOIN tallas ON producto_talla.id_talla = tallas.id_talla
+            WHERE id_producto = $id_producto AND status = 1 ORDER BY id_talla";
+            $productos = DatasetSQL($query2);
+
+            while($row2 = mysqli_fetch_array($productos)){
+                $id_producto_talla = $row2['id_producto_talla'];
+                $talla = $row2['talla'];
+                $xmlRow .=  "<option value='$id_producto_talla'>$talla</option>";
+            }
+        }
+
+		$query3 = "SELECT precio FROM productos WHERE id_producto = $id_producto";
+		$precio_unitario = GetValueSQL($query3, 'precio');
+
+		$precio_unitario = "$".number_format($precio_unitario, 2);
+    } else{
+		$precio_unitario = "$".number_format(0, 2);
+	}
+
+	
+
+    $result = array( 
+		'id_producto'			=> $id_producto,
+		'precio_unitario'		=> $precio_unitario,
+        'select_tallas'     	=> $xmlRow, 
+        'result'                => $resultStatus, 
+        'result_text'           => $resultText
+    );      
+    XML_Envelope($result);     
+    exit;   
+}
+
+
+
+
+if(Requesting("action") == "crear_venta"){
+	$resultStatus = "ok";
+	$resultText = "Correcto.";
+
+	$id_cliente = Requesting("id_cliente");
+	$id_empleado = Requesting("id_empleado");
+	$fecha_hoy = date("Y-m-d");
+
+	// echo "ID CLiente: ".$id_cliente;
+	// echo "ID Empleado: ".$id_empleado;
+	// echo "Fecha Hoy: ".$fecha_hoy;
+
+	$query2 = "SELECT COUNT(*) AS existe FROM ventas WHERE id_cliente = $id_cliente AND status_venta = 0";
+	$cuantos = GetValueSQL($query2, 'existe');
+
+	if($cuantos == 0){
+		$query1 = "INSERT INTO ventas (id_cliente, id_empleado, fecha, total_venta, status_venta) VALUES ($id_cliente, $id_empleado, '$fecha_hoy', 0, 0)";
+		$id_venta = ExecuteSQL_returnID($query1);
+
+		if ($id_venta !== false) {
+			$resultStatus = "ok";
+			$resultText = "Se creó la venta. Agrega productos.";
+		} else {
+			$resultStatus = "error";
+			$resultText = "Error al crear la venta.";
+		}
+	} else{
+		$resultStatus = "warning";
+        $resultText = "Ya existe una venta abierta para este cliente.";
+		$query3 = "SELECT id_venta FROM ventas WHERE id_cliente = $id_cliente AND status_venta = 0";
+		$id_venta = GetValueSQL($query3, 'id_venta');
+	}
+
+	
+	$result = array( 
+		'id_cliente'			=> $id_cliente,
+		'id_venta'				=> $id_venta,
+		'result' 				=> $resultStatus, 
+		'result_text' 			=> $resultText
+	);		
+	XML_Envelope($result);     
+	exit;	
+}
+
+
+if(Requesting("action") == "agregar_dv"){
+	$id_venta = Requesting("id_venta");
+	$id_producto = Requesting("id_producto");
+    $id_producto_talla = Requesting("id_producto_talla");
+	$cantidad = Requesting("cantidad");
+
+	$query1 = "SELECT precio FROM productos WHERE id_producto = $id_producto";
+	$precio_unitario = GetValueSQL($query1, 'precio');
+
+	$subtotal = floatval($precio_unitario) * floatval($cantidad);
+
+    $resultStatus = "ok";
+    $resultText = "Correcto.";
+
+	$query3 = "SELECT COUNT(*) AS existe FROM detalles_ventas WHERE id_venta = $id_venta AND id_producto = $id_producto AND id_producto_talla = $id_producto_talla ";
+	$existe = GetValueSQL($query3, 'existe');
+
+	if($existe > 0){
+
+		$query4 = "UPDATE detalles_ventas SET cantidad = cantidad + $cantidad, subtotal = subtotal + $subtotal WHERE id_venta = $id_venta AND id_producto_talla = $id_producto_talla ";
+		ExecuteSQL($query4);
+
+	} else{
+
+		$query2 = "INSERT INTO detalles_ventas (id_venta, id_producto, id_producto_talla, cantidad, precio_unitario, subtotal)
+					VALUES ($id_venta, $id_producto, $id_producto_talla, $cantidad, $precio_unitario, $subtotal)";
+		if(ExecuteSQL($query2)){
+			$resultStatus = "ok";
+			$resultText = "Se agregó el producto a la venta.";
+		} else{
+			$resultStatus = "error";
+			$resultText = "Ocurrió un error. Inténtalo de nuevo. ";
+		}
+
+	}
+
+	
+
+	
+	$result = array( 
+		'result' 				=> $resultStatus, 
+		'result_text' 			=> $resultText
+	);		
+	XML_Envelope($result);     
+	exit;	
+}
+
+
+if(Requesting("action") == "editar_dv"){
+	$id_detalle_venta = Requesting("id_detalle_venta");
+    $id_producto_talla = Requesting("id_producto_talla");
+	$cantidad = Requesting("cantidad");
+
+    $resultStatus = "ok";
+    $resultText = "Correcto.";
+
+
+
+	$query1 = "SELECT * FROM detalles_ventas 
+	INNER JOIN productos ON detalles_ventas.id_producto = productos.id_producto
+	WHERE id_detalle_venta = $id_detalle_venta";
+
+	$precio = GetValueSQL($query1, 'precio');
+
+	$subtotal = floatval($precio) * floatval($cantidad);
+
+	$query2 = "UPDATE detalles_ventas SET id_producto_talla = $id_producto_talla, cantidad = $cantidad, precio_unitario = $precio, subtotal = $subtotal WHERE id_detalle_venta = $id_detalle_venta";
+	if(ExecuteSQL($query2)){
+		$resultStatus = "ok";
+        $resultText = "Se editó correctamente. ";
+    } else{
+		$resultStatus = "error";
+		$resultText = "Ocurrió un error. Inténtalo de nuevo. ";
+	}
+
+	
+	$result = array( 
+		'result' 				=> $resultStatus, 
+		'result_text' 			=> $resultText
+	);		
+	XML_Envelope($result);     
+	exit;	
+}
+
+
+
+if(Requesting("action") == "eliminar_dv"){
+	$id_detalle_venta = Requesting("id_detalle_venta");
+
+    $resultStatus = "ok";
+    $resultText = "Correcto.";
+
+	$query1 = "DELETE FROM detalles_ventas WHERE id_detalle_venta = $id_detalle_venta";
+	if(ExecuteSQL($query1)){
+		$resultStatus = "ok";
+        $resultText = "Se eliminó correctamente. ";
+    } else{
+        $resultStatus = "error";
+        $resultText = "Ocurrió un error. Inténtalo de nuevo. ";
+	}
+
+
+	
+	$result = array( 
+		'result' 				=> $resultStatus, 
+		'result_text' 			=> $resultText
+	);		
+	XML_Envelope($result);     
+	exit;	
+}
+
+
+if(Requesting("action") == "llenar_tabla_dv"){
+	$id_venta = Requesting("id_venta");
+
+	// echo "ID Venta: ".$id_venta;
+
+    $resultStatus = "ok";
+    $resultText = "Correcto.";
+	$xmlRow = "";	
+
+	$query1 = "SELECT COUNT(*) AS cuantos FROM detalles_ventas WHERE id_venta = $id_venta";
+	$cuantos = GetValueSQL($query1, 'cuantos');
+	if($cuantos > 0){
+
+		$query2 = "SELECT * FROM detalles_ventas
+		INNER JOIN productos ON detalles_ventas.id_producto = productos.id_producto
+		INNER JOIN producto_talla ON detalles_ventas.id_producto_talla = producto_talla.id_producto_talla
+		INNER JOIN tallas ON producto_talla.id_talla = tallas.id_talla
+		WHERE id_venta = $id_venta";
+		// echo $query2;
+		$detalle_venta = DatasetSQL($query2);
+
+		while($row2 = mysqli_fetch_array($detalle_venta)){
+			$id_detalle_venta = $row2['id_detalle_venta'];
+			$nombre_producto = $row2['nombre_producto'];
+			$talla = $row2['talla'];
+            $cantidad = $row2['cantidad'];
+            $precio_unitario = $row2['precio_unitario'];
+            $subtotal = $row2['subtotal'];
+
+			$xmlRow .=  "<tr>
+                            <td>$nombre_producto</td>
+                            <td>$talla</td>
+                            <td>$cantidad</td>
+                            <td>$".number_format($precio_unitario, 2)."</td>
+                            <td>$".number_format($subtotal, 2)."</td>
+                            <td>
+								<a type='button' data-bs-toggle='modal' data-bs-target='#modalEditarDV' data-id='$id_detalle_venta' onclick='llenar_form_dv($id_detalle_venta)'><i class='fas fa-pen fa-lg'></i></a> &nbsp;
+								<a type='button' onclick='eliminar_dv($id_detalle_venta)'><i class='fas fa-trash text-danger fa-lg'></i></a> 
+                            </td>
+                        </tr>";
+			
+		}
+		$query3 = "SELECT total_venta FROM ventas WHERE id_venta = $id_venta";
+		$total_venta = GetValueSQL($query3, 'total_venta');
+		$total_venta = "$".number_format($total_venta, 2);
+		$xmlRow .= "<tr>
+						<td colspan='6'><strong>Subtotal: </strong>".$total_venta."</td>
+					</tr>";
+	}
+
+
+
+
+
+	$result = array( 
+		'tabla_detalle_venta' 	=> $xmlRow, 
+		'result' 				=> $resultStatus, 
+		'result_text' 			=> $resultText
+	);		
+	XML_Envelope($result);     
+	exit;	
+}
+
+
+
+if(Requesting("action") == "llenar_form_dv"){
+	$id_detalle_venta = Requesting("id_detalle_venta");
+
+    $resultStatus = "ok";
+    $resultText = "Correcto.";
+
+	$xmlRow = '';
+
+
+	$query1 = "SELECT * FROM detalles_ventas 
+	INNER JOIN productos on productos.id_producto = detalles_ventas.id_producto
+	WHERE id_detalle_venta = $id_detalle_venta";
+
+
+	$cantidad = GetValueSQL($query1, 'cantidad');
+	$nombre_producto = GetValueSQL($query1, 'nombre_producto');
+	$precio = GetValueSQL($query1, 'precio');
+	$id_producto = GetValueSQL($query1, 'id_producto');
+	$id_producto_talla = GetValueSQL($query1, 'id_producto_talla');
+
+	$precio = "$".number_format($precio, 2);
+
+	$query2 = "SELECT * FROM producto_talla
+	INNER JOIN tallas on producto_talla.id_talla = tallas.id_talla
+	WHERE id_producto = $id_producto";
+	$tallas = DatasetSQL($query2);
+
+	while($row2 = mysqli_fetch_array($tallas)){
+		if($id_producto_talla == $row2['id_producto_talla']){
+			$xmlRow .= "<option selected='selected' value='".$row2['id_producto_talla']."'>".$row2['talla']."</option>";
+		} else{
+			$xmlRow .= "<option value='".$row2['id_producto_talla']."'>".$row2['talla']."</option>";
+		}
+	}
+
+
+
+	
+	$result = array( 
+		'cantidad'				=> $cantidad,
+		'select_tallas'			=> $xmlRow,
+		'nombre_producto'		=> $nombre_producto,
+		'precio'				=> $precio,
+		'result' 				=> $resultStatus, 
+		'result_text' 			=> $resultText
+	);		
+	XML_Envelope($result);     
+	exit;	
+}
+
+
+
+if(Requesting("action") == "terminar_venta"){
+	$id_venta = Requesting("id_venta");
+
+    $resultStatus = "ok";
+    $resultText = "Correcto.";
+
+	$query3 = "SELECT id_cliente FROM ventas WHERE id_venta = $id_venta";
+	$id_cliente = GetValueSQL($query3, 'id_cliente');
+
+	$query1 = "SELECT COUNT(*) AS cuantos FROM detalles_ventas WHERE id_venta = $id_venta";
+	$cuantos = GetValueSQL($query1, 'cuantos');
+
+	if($cuantos > 0){
+		$query2 = "UPDATE ventas SET status_venta = 1 WHERE id_venta = $id_venta";
+		if(ExecuteSQL($query2)){
+			$resultStatus = "ok";
+            $resultText = "Venta procesada. ";
+		} else{
+            $resultStatus = "error";
+            $resultText = "Ocurrió un error. Inténtalo de nuevo. ";
+        }
+
+	} else{
+		$resultStatus = "error";
+        $resultText = "Agrega productos para vender";
+	}
+
+
+	$result = array( 
+		'id_cliente'			=> $id_cliente,
+		'result' 				=> $resultStatus, 
+		'result_text' 			=> $resultText
+	);		
+	XML_Envelope($result);     
+	exit;	
+}
+
 
 ?>

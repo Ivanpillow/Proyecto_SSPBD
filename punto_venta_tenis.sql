@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 02-05-2024 a las 23:11:32
+-- Tiempo de generación: 09-05-2024 a las 01:34:45
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
@@ -44,7 +44,7 @@ INSERT INTO `clientes` (`id_cliente`, `nombre_cliente`, `email`, `password`, `di
 (1, 'julio', 'julio@ejempo.com', '123', 'maiz 255', 1),
 (2, 'bruno', 'bruno@ejemplo.com', '123', 'islas antillas 55', 1),
 (3, 'angelllll', 'angel@gmail.com', '123', 'hidalgo 233', 2),
-(4, 'ivan', 'ivan@hotmail.com', '123', 'boulevard 55', 1);
+(4, 'ivan', 'ivan@hotmail.com', '123', 'boulevard 555', 1);
 
 -- --------------------------------------------------------
 
@@ -54,8 +54,10 @@ INSERT INTO `clientes` (`id_cliente`, `nombre_cliente`, `email`, `password`, `di
 --
 CREATE TABLE `detallesventa` (
 `id_venta` int(11)
+,`id_detalle_venta` int(11)
 ,`id_producto` int(11)
 ,`nombre_producto` varchar(45)
+,`id_producto_talla` int(11)
 ,`id_talla` int(11)
 ,`talla` varchar(30)
 ,`cantidad` int(11)
@@ -99,6 +101,7 @@ CREATE TABLE `detalles_ventas` (
   `id_detalle_venta` int(11) NOT NULL,
   `id_venta` int(11) NOT NULL,
   `id_producto` int(11) NOT NULL,
+  `id_producto_talla` int(11) NOT NULL,
   `cantidad` int(11) DEFAULT NULL,
   `precio_unitario` float DEFAULT NULL,
   `subtotal` float NOT NULL
@@ -108,13 +111,44 @@ CREATE TABLE `detalles_ventas` (
 -- Volcado de datos para la tabla `detalles_ventas`
 --
 
-INSERT INTO `detalles_ventas` (`id_detalle_venta`, `id_venta`, `id_producto`, `cantidad`, `precio_unitario`, `subtotal`) VALUES
-(5, 4, 1, 5, 2899, 14495),
-(6, 3, 1, 2, 2899, 5798),
-(7, 3, 2, 2, 3200, 6400),
-(8, 3, 3, 1, 1149, 1149),
-(9, 1, 75, 8, 500, 4000),
-(10, 4, 2, 2, 3200, 6400);
+INSERT INTO `detalles_ventas` (`id_detalle_venta`, `id_venta`, `id_producto`, `id_producto_talla`, `cantidad`, `precio_unitario`, `subtotal`) VALUES
+(6, 1, 1, 4, 2, 2899, 5798),
+(7, 1, 2, 5, 2, 3200, 6400),
+(21, 11, 1, 1, 2, 2899, 5798),
+(22, 11, 2, 5, 3, 3200, 9600),
+(23, 11, 2, 7, 2, 3200, 6400),
+(25, 12, 2, 5, 1, 3200, 3200),
+(26, 12, 4, 15, 2, 2999, 5998);
+
+--
+-- Disparadores `detalles_ventas`
+--
+DELIMITER $$
+CREATE TRIGGER `ActualizarTotalVentaOnDelete` AFTER DELETE ON `detalles_ventas` FOR EACH ROW UPDATE ventas
+SET total_venta = (
+    SELECT SUM(precio_unitario * cantidad) 
+    FROM detalles_ventas 
+    WHERE id_venta = OLD.id_venta
+)
+WHERE id_venta = OLD.id_venta
+$$
+DELIMITER ;
+DELIMITER $$
+CREATE TRIGGER `ActualizarTotalVentaOnUpdate` AFTER UPDATE ON `detalles_ventas` FOR EACH ROW UPDATE ventas
+SET total_venta = (
+    SELECT SUM(precio_unitario * cantidad) 
+    FROM detalles_ventas 
+    WHERE id_venta = NEW.id_venta
+)
+WHERE id_venta = NEW.id_venta
+$$
+DELIMITER ;
+DELIMITER $$
+CREATE TRIGGER `actualizar_total_venta` AFTER INSERT ON `detalles_ventas` FOR EACH ROW UPDATE ventas 
+    SET total_venta = total_venta + NEW.subtotal
+    WHERE id_venta = NEW.id_venta
+$$
+DELIMITER ;
 
 -- --------------------------------------------------------
 
@@ -153,8 +187,8 @@ CREATE TABLE `informacioncliente` (
 ,`nombre_cliente` varchar(80)
 ,`email` varchar(45)
 ,`direccion` varchar(45)
-,`cuantas_ventas` bigint(21)
-,`total_ventas` double
+,`total_ventas_cliente` bigint(21)
+,`total_venta_status_1` double
 );
 
 -- --------------------------------------------------------
@@ -165,7 +199,6 @@ CREATE TABLE `informacioncliente` (
 
 CREATE TABLE `productos` (
   `id_producto` int(11) NOT NULL,
-  `id_talla` int(11) NOT NULL,
   `nombre_producto` varchar(45) DEFAULT NULL,
   `descripcion` varchar(180) DEFAULT NULL,
   `precio` float DEFAULT NULL,
@@ -178,11 +211,44 @@ CREATE TABLE `productos` (
 -- Volcado de datos para la tabla `productos`
 --
 
-INSERT INTO `productos` (`id_producto`, `id_talla`, `nombre_producto`, `descripcion`, `precio`, `stock`, `categoria`, `status`) VALUES
-(1, 3, 'Air Jordan 1 Low Bred Toe 2.0', 'n par reconocido por cualquiera, Esta silueta', 2899, 8, 'Tenis Jordan 1', 1),
-(2, 4, 'Air Jordan 1 Mid SE', 'Las Air Jordan 1 Mid SE mantienen el atractiv', 3200, 3, 'Tenis Jordan 1', 1),
-(3, 4, 'Jordan Jumpman', 'Póntelas y en marcha. Disfruta de la amortiguación de espuma gruesa y ligera para los días de playa o para salir después del partido.', 1149, 2, 'Sandalias', 0),
-(4, 5, 'Nike Dunk Low', 'Este ícono del básquetbol de los 80, creado para la cancha y adaptado al estilo urbano, vuelve con detalles clásicos y un estilo de básquetbol retro.', 2999, 7, 'Tenis dunk', 1);
+INSERT INTO `productos` (`id_producto`, `nombre_producto`, `descripcion`, `precio`, `stock`, `categoria`, `status`) VALUES
+(1, 'Air Jordan 1 Low Bred Toe 2.0', 'Un par reconocido por cualquiera, Esta silueta', 2899, 8, 'Tenis Jordan 1', 1),
+(2, 'Air Jordan 1 Mid SE', 'Las Air Jordan 1 Mid SE mantienen el atractiv', 3200, 3, 'Tenis Jordan 1', 1),
+(3, 'Jordan Jumpman', 'Póntelas y en marcha. Disfruta de la amortiguación de espuma gruesa y ligera para los días de playa o para salir después del partido.', 1149, 2, 'Sandalias', 0),
+(4, 'Nike Dunk Low', 'Este ícono del básquetbol de los 80, creado para la cancha y adaptado al estilo urbano, vuelve con detalles clásicos y un estilo de básquetbol retro.', 2999, 7, 'Tenis dunk', 1);
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `producto_talla`
+--
+
+CREATE TABLE `producto_talla` (
+  `id_producto_talla` int(11) NOT NULL,
+  `id_producto` int(11) NOT NULL,
+  `id_talla` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Volcado de datos para la tabla `producto_talla`
+--
+
+INSERT INTO `producto_talla` (`id_producto_talla`, `id_producto`, `id_talla`) VALUES
+(1, 1, 3),
+(2, 1, 4),
+(3, 1, 5),
+(4, 1, 6),
+(5, 2, 4),
+(6, 2, 5),
+(7, 2, 6),
+(8, 2, 7),
+(9, 3, 5),
+(10, 3, 6),
+(11, 3, 7),
+(12, 4, 3),
+(13, 4, 4),
+(14, 4, 5),
+(15, 4, 6);
 
 -- --------------------------------------------------------
 
@@ -218,14 +284,14 @@ INSERT INTO `proveedores` (`id_proveedor`, `nombreProveedor`, `direccion`, `tele
 CREATE TABLE `tallas` (
   `id_talla` int(11) NOT NULL,
   `talla` varchar(30) NOT NULL,
-  `estatus` int(11) NOT NULL DEFAULT 1
+  `status` int(11) NOT NULL DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Volcado de datos para la tabla `tallas`
 --
 
-INSERT INTO `tallas` (`id_talla`, `talla`, `estatus`) VALUES
+INSERT INTO `tallas` (`id_talla`, `talla`, `status`) VALUES
 (1, 'NA', 1),
 (2, '11CM', 1),
 (3, '11.5CM', 1),
@@ -314,18 +380,19 @@ CREATE TABLE `ventas` (
   `id_cliente` int(11) NOT NULL,
   `id_empleado` int(11) NOT NULL,
   `fecha` date DEFAULT NULL,
-  `total_venta` float NOT NULL
+  `total_venta` float NOT NULL,
+  `status_venta` int(11) NOT NULL DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Volcado de datos para la tabla `ventas`
 --
 
-INSERT INTO `ventas` (`id_venta`, `id_cliente`, `id_empleado`, `fecha`, `total_venta`) VALUES
-(1, 1, 2, '2024-04-03', 2250),
-(2, 2, 3, '2024-04-03', 4000),
-(3, 3, 4, '2024-03-20', 13347),
-(4, 4, 1, '2024-04-23', 20895);
+INSERT INTO `ventas` (`id_venta`, `id_cliente`, `id_empleado`, `fecha`, `total_venta`, `status_venta`) VALUES
+(1, 3, 4, '2024-03-20', 13347, 1),
+(11, 1, 1, '2024-05-08', 21798, 1),
+(12, 2, 2, '2024-05-09', 9198, 1),
+(13, 1, 1, '2024-05-09', 0, 0);
 
 -- --------------------------------------------------------
 
@@ -352,7 +419,7 @@ CREATE TABLE `vista_ventas` (
 --
 DROP TABLE IF EXISTS `detallesventa`;
 
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `detallesventa`  AS SELECT `v`.`id_venta` AS `id_venta`, `dv`.`id_producto` AS `id_producto`, `p`.`nombre_producto` AS `nombre_producto`, `p`.`id_talla` AS `id_talla`, `t`.`talla` AS `talla`, `dv`.`cantidad` AS `cantidad`, `dv`.`precio_unitario` AS `precio_unitario`, `dv`.`subtotal` AS `subtotal` FROM (((`ventas` `v` join `detalles_ventas` `dv` on(`v`.`id_venta` = `dv`.`id_venta`)) join `productos` `p` on(`dv`.`id_producto` = `p`.`id_producto`)) join `tallas` `t` on(`p`.`id_talla` = `t`.`id_talla`)) ;
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `detallesventa`  AS SELECT `v`.`id_venta` AS `id_venta`, `dv`.`id_detalle_venta` AS `id_detalle_venta`, `dv`.`id_producto` AS `id_producto`, `p`.`nombre_producto` AS `nombre_producto`, `dv`.`id_producto_talla` AS `id_producto_talla`, `pt`.`id_talla` AS `id_talla`, `t`.`talla` AS `talla`, `dv`.`cantidad` AS `cantidad`, `dv`.`precio_unitario` AS `precio_unitario`, `dv`.`subtotal` AS `subtotal` FROM ((((`ventas` `v` join `detalles_ventas` `dv` on(`v`.`id_venta` = `dv`.`id_venta`)) join `producto_talla` `pt` on(`dv`.`id_producto_talla` = `pt`.`id_producto_talla`)) join `tallas` `t` on(`pt`.`id_talla` = `t`.`id_talla`)) join `productos` `p` on(`dv`.`id_producto` = `p`.`id_producto`)) ;
 
 -- --------------------------------------------------------
 
@@ -361,7 +428,7 @@ CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW 
 --
 DROP TABLE IF EXISTS `informacioncliente`;
 
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `informacioncliente`  AS SELECT `c`.`id_cliente` AS `id_cliente`, `c`.`nombre_cliente` AS `nombre_cliente`, `c`.`email` AS `email`, `c`.`direccion` AS `direccion`, ifnull(`v`.`cuantas_ventas`,0) AS `cuantas_ventas`, ifnull(`v`.`total_ventas`,0) AS `total_ventas` FROM (`clientes` `c` left join (select `ventas`.`id_cliente` AS `id_cliente`,count(0) AS `cuantas_ventas`,sum(`ventas`.`total_venta`) AS `total_ventas` from `ventas` group by `ventas`.`id_cliente`) `v` on(`c`.`id_cliente` = `v`.`id_cliente`)) ;
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `informacioncliente`  AS SELECT `c`.`id_cliente` AS `id_cliente`, `c`.`nombre_cliente` AS `nombre_cliente`, `c`.`email` AS `email`, `c`.`direccion` AS `direccion`, count(`v`.`id_venta`) AS `total_ventas_cliente`, sum(`v`.`total_venta`) AS `total_venta_status_1` FROM (`clientes` `c` left join `ventas` `v` on(`c`.`id_cliente` = `v`.`id_cliente` and `v`.`status_venta` = 1)) GROUP BY `c`.`nombre_cliente`, `c`.`email`, `c`.`direccion` ;
 
 -- --------------------------------------------------------
 
@@ -407,6 +474,12 @@ ALTER TABLE `productos`
   ADD PRIMARY KEY (`id_producto`);
 
 --
+-- Indices de la tabla `producto_talla`
+--
+ALTER TABLE `producto_talla`
+  ADD PRIMARY KEY (`id_producto_talla`);
+
+--
 -- Indices de la tabla `proveedores`
 --
 ALTER TABLE `proveedores`
@@ -444,7 +517,7 @@ ALTER TABLE `detalles_compras`
 -- AUTO_INCREMENT de la tabla `detalles_ventas`
 --
 ALTER TABLE `detalles_ventas`
-  MODIFY `id_detalle_venta` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+  MODIFY `id_detalle_venta` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=27;
 
 --
 -- AUTO_INCREMENT de la tabla `empleados`
@@ -457,6 +530,12 @@ ALTER TABLE `empleados`
 --
 ALTER TABLE `productos`
   MODIFY `id_producto` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+
+--
+-- AUTO_INCREMENT de la tabla `producto_talla`
+--
+ALTER TABLE `producto_talla`
+  MODIFY `id_producto_talla` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
 
 --
 -- AUTO_INCREMENT de la tabla `proveedores`
@@ -474,7 +553,7 @@ ALTER TABLE `tallas`
 -- AUTO_INCREMENT de la tabla `ventas`
 --
 ALTER TABLE `ventas`
-  MODIFY `id_venta` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id_venta` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
