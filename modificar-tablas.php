@@ -28,7 +28,6 @@ ob_start();
         require_once "include/db_tools.php";  
         include('main-header.php');
 
-
         //include('conexion.php'); 
 
         if(isset($_GET['tabla'])){
@@ -49,14 +48,20 @@ ob_start();
 
     ?>
     
-    
+    <!--=====================================
+			#region Modificar tablas
+	======================================-->
     <div class="container">
         <input id="nombre_tabla" type="hidden" value="<?php echo $table; ?>">
         <h1>Modificar Tablas</h1>
         <div class="container">
             <div class="row justify-content-center">
                 <div class="col-8">
-                    <!-- Formulario para modificar tablas -->
+
+                    <!--=====================================
+                            #region Formulario modificar tabla
+                    ======================================-->
+
                     <form class="form">
                         <h4>Modificar Tabla</h4>
                         <div class="form-group">
@@ -70,6 +75,9 @@ ob_start();
                     </form>
 
                     <hr>
+                    <!--=====================================
+                            #region formulario agregar campo
+                    ======================================-->
 
                     <form class="form" id="formAgregarCampo">
                         <h4>Agregar Campo</h4>
@@ -95,6 +103,9 @@ ob_start();
                         </div>
                     </form>
 
+                    <!--=====================================
+                            #region formulario eliminar campo
+                    ======================================-->
 
                     <form class="form" id="formEliminarCampo">
                         <h4>Eliminar Campo</h4>
@@ -107,7 +118,10 @@ ob_start();
                         </div>
                     </form>
 
-                    
+                    <!--=====================================
+                            #region formulario modificar campo
+                    ======================================-->
+
                     <form class="form" id="formModificarCampo">
                         <h4>Modificar Campo</h4>
                         <div class="form-group">
@@ -141,6 +155,9 @@ ob_start();
         </div>
     </div>
     
+    <!--=====================================
+			#region Estructura de Tabla
+	======================================-->
 
     <div class="container">
         <div class="row justify-content-center">

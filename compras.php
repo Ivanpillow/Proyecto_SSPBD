@@ -8,7 +8,7 @@ ob_start();
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ventas</title>
+    <title>Compras</title>
     <link rel="stylesheet" href="estilos4.css">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     
@@ -29,38 +29,39 @@ ob_start();
 
     ?>
 
-    
     <!--=====================================
-			#region Titulos de tablas
-	======================================-->    
+        #region Titulos de tabla
+    ======================================-->
+        
     <div class="container">
         <h1>Punto de Venta de Tenis</h1>
-        <h2>&nbspVentas</h2>
+        <h2>&nbspCompras</h2>
         <div class="container">
-            <a class="btn btn-success text-white" href="nueva-venta">Nueva compra</a>
+            <a class="btn btn-success text-white" href="nueva-venta">Nueva venta</a>
             <div class="row justify-content-center">
                 <div class="col-8">
                     <table class="table table-striped">
                         <thead class="thead-dark">
                             <tr>
-                                <th scope="col">ID Venta</th>
-                                <th scope="col">Cliente</th>
+                                <th scope="col">ID Compra</th>
+                                <th scope="col">Proveedor</th>
                                 <th scope="col">Empleado</th>
                                 <th scope="col">Fecha</th>
                                 <th scope="col">Subtotal</th>
                                 <th scope="col">Opciones</th>
                             </tr>
                         </thead>
-                        <tbody id="tabla_ventas">
+                        <tbody id="tabla_compras">
 
                         <!--=====================================
-                                #region Creacion de vista
+                            #region Detalles de la compra
                         ======================================-->
+
                             <?php
 
-                            $query1 = "SELECT COUNT(*) AS existe FROM ventas 
-                            INNER JOIN clientes ON ventas.id_cliente = clientes.id_cliente
-                            INNER JOIN empleados ON ventas.id_empleado = empleados.id_empleado";
+                            $query1 = "SELECT COUNT(*) AS existe FROM compras 
+                            INNER JOIN proveedores ON compras.id_proveedor = proveedores.id_proveedor
+                            INNER JOIN empleados ON compras.id_empleado = empleados.id_empleado";
                             // echo $query1;
                             $existe = GetValueSQL($query1, 'existe');
 
@@ -68,64 +69,65 @@ ob_start();
                             
                             if($existe > 0){
 
-                                $query4 = "SELECT SUM(ventas.total_venta) AS total_vendido FROM ventas";
+                                $query4 = "SELECT SUM(compras.total_compra) AS total_vendido FROM compras";
                                 $total_vendido = GetValueSQL($query4, 'total_vendido');
 
-                                $query_vista = "CREATE VIEW Ventas AS
-                                SELECT v.*, c.nombre_cliente, c.email, c.direccion, e.nombre_empleado
-                                FROM ventas v
-                                INNER JOIN clientes c ON v.id_cliente = c.id_cliente
-                                INNER JOIN empleados e ON v.id_empleado = e.id_empleado
-                                ORDER BY v.fecha DESC";
+                                $query_vista = "CREATE VIEW compras AS
+                                SELECT cmp.*, prove.nombre_proveedor, prove.direccion, prove.telefono, prove.cantidadReestock, empl.nombre_empleado
+                                FROM compras cmp
+                                INNER JOIN proveedores prove ON cmp.id_proveedor = prove.id_proveedor
+                                INNER JOIN empleados empl ON cmp.id_empleado = empl.id_empleado
+                                ORDER BY cmp.fecha DESC";
 
-                                $query2 = "SELECT * FROM vista_ventas";
+                                $query2 = "SELECT * FROM vista_compras";
                                 // echo $query2;
                                 $result2 = DatasetSQL($query2);
 
                                 while($row2 = mysqli_fetch_array($result2)){
-                                    $id_venta = $row2['id_venta'];
-                                    $id_cliente = $row2['id_cliente'];
-                                    $nombre_cliente = $row2['nombre_cliente'];
+                                    $id_compra = $row2['id_compra'];
+                                    $id_proveedor = $row2['id_proveedor'];
+                                    $nombre_proveedor = $row2['nombre_proveedor'];
                                     $nombre_empleado = $row2['nombre_empleado'];
                                     $fecha = $row2['fecha'];
-                                    $total_venta = $row2['total_venta'];
+                                    $total_compra = $row2['total_compra'];
 
 
                                     echo "<tr>";
-                                    echo "<td>$id_venta</td>";
-                                    echo "<td><a type='button' href='cliente/$id_cliente'>$nombre_cliente</a></td>";
+                                    echo "<td>$id_compra</td>";
+                                    echo "<td><a type='button' href='proveedor/$id_proveedor'>$nombre_proveedor</a></td>";
                                     echo "<td>$nombre_empleado</td>";
                                     echo "<td>$fecha</td>";
-                                    echo "<td>$".number_format($total_venta, 2)."</td>";
-                                    echo "<td><a type='button' href='' onclick='ver_detalles_venta($id_venta, event)'>Ver detalles</a></td>";
+                                    echo "<td>$".number_format($total_compra, 2)."</td>";
+                                    echo "<td><a type='button' href='' onclick='ver_detalles_compra($id_compra, event)'>Ver detalles</a></td>";
                                     echo "</tr>";
                                     
                                     ?>
 
                                     <!--=====================================
-                                            #region Detalles de la venta
+                                            #region Detalles de la compra
                                     ======================================-->
 
-                                    <tr id="detalles_venta_<?php echo $id_venta; ?>" style='display: none;'>
+                                    <!-- Falta hacer las funciones al final en el controler para las compras -->
+                                    <tr id="detalles_compra_<?php echo $id_compra; ?>" style='display: none;'>
                                         <td colspan='6'>
                                             <ul>
                                                 
                                                 <?php 
 
-                                                $query_vista_ventas = "CREATE VIEW DetallesVenta AS
-                                                SELECT v.id_venta, dv.id_detalle_venta, dv.id_producto, p.nombre_producto, dv.id_producto_talla, pt.id_talla, t.talla, dv.cantidad, dv.precio_unitario, dv.subtotal
-                                                FROM ventas v
-                                                INNER JOIN detalles_ventas dv ON v.id_venta = dv.id_venta
-                                                INNER JOIN producto_talla pt ON dv.id_producto_talla = pt.id_producto_talla
+                                                $query_vista_compras = "CREATE VIEW DetallesCompras AS
+                                                SELECT cmp.id_compra, dc.id_detalle_compra, dc.id_producto, p.nombre_producto, dc.id_producto_talla, pt.id_talla, t.talla, dc.cantidad, dc.precio_unitario, dc.subtotal
+                                                FROM compras cmp
+                                                INNER JOIN detalles_compras dc ON cmp.id_compra = dc.id_compra
+                                                INNER JOIN producto_talla pt ON dc.id_producto_talla = pt.id_producto_talla
                                                 INNER JOIN tallas t ON pt.id_talla = t.id_talla
-                                                INNER JOIN productos p ON dv.id_producto = p.id_producto";
+                                                INNER JOIN productos p ON dc.id_producto = p.id_producto";
 
 
-                                                $query3 = "SELECT * FROM DetallesVenta WHERE id_venta = $id_venta";
-                                                $detalles_ventas = DatasetSQL($query3);
+                                                $query3 = "SELECT * FROM DetallesCompras WHERE id_compra = $id_compra";
+                                                $detalles_compras = DatasetSQL($query3);
                                 
-                                                // Imprimir los detalles de la venta
-                                                while($row3 = mysqli_fetch_array($detalles_ventas)){
+                                                // Imprimir los detalles de la compra
+                                                while($row3 = mysqli_fetch_array($detalles_compras)){
                                                     $nombre_producto = $row3['nombre_producto'];
                                                     $talla = $row3['talla'];
                                                     $cantidad = $row3['cantidad'];
@@ -162,7 +164,7 @@ ob_start();
                 </div>
                 <div class="col-4">
                     <h4 class="text">Ordenar por:</h4>
-                    <select id="select_ventas" class="select" onchange="llenar_tabla_ventas()">
+                    <select id="select_compras" class="select" onchange="llenar_tabla_ventas()">
                             <option value="1">Todos los tiempos</option>
                             <?php
                             // Obtener la fecha actual

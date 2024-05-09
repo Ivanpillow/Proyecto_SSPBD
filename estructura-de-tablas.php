@@ -19,7 +19,7 @@ ob_start();
 	<link href="assets/plugins/sweetalert/sweetalert.css" rel="stylesheet" type="text/css"> <!-- Swal -->
 	<script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script> <!-- Swal -->
 </head>
-<body style="background-color: ;">
+<body>
 
     <?php
     
@@ -29,7 +29,9 @@ ob_start();
 
     ?>
 
-        
+    <!--=====================================
+			#region Titulos estructura tablas
+	======================================-->    
     <div class="container">
         <h1>Punto de Venta de Tenis</h1>
         <h2>Tablas Existentes</h2>
@@ -46,6 +48,11 @@ ob_start();
                             <th>Llave Primaria</th>
                             <th>Opciones Campo</th>
                         </tr>
+
+                        <!--=====================================
+                                #region Llenado de datos de tablas
+                        ======================================-->
+
                         <?php
                         $query = "SHOW TABLES";
                         $result = DatasetSQL($query);
@@ -84,8 +91,8 @@ ob_start();
                                 }
 
                                 echo "<td>
-                                    <a type='button' data-bs-toggle='modal' data-bs-target='#modalEditarCampo' data-name-campo='$nombre_campo'><i class='fas fa-pen fa-lg'></i></a> &nbsp;
-                                    <a type='button' data-bs-toggle='modal' data-bs-target='#modalEliminarCampo' data-name-campo='$nombre_campo'><i class='fas fa-trash text-danger fa-lg'></i></a>
+                                    <a type='button' data-bs-toggle='modal' data-bs-target='#modalEditarCampo' data-name-campo='$nombre_campo' title='Editar'><i class='fas fa-pen fa-lg'></i></a> &nbsp;
+                                    <a type='button' data-bs-toggle='modal' data-bs-target='#modalEliminarCampo' data-name-campo='$nombre_campo' title='Eliminar'><i class='fas fa-trash text-danger fa-lg'></i></a>
                                 </td>";
                     
                                 echo "</tr><tr>";
@@ -100,7 +107,9 @@ ob_start();
     </div>
     
 
-    <!-- Ventana modal para añadir nuevo campo -->
+    <!--=====================================
+			#region Ventana modal añadir nuevo campo
+	======================================-->
     <div class="modal fade" id="modalAgregar" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -132,7 +141,9 @@ ob_start();
     </div>
 
 
-    <!-- Ventana modal para eliminar campo -->
+    <!--=====================================
+			#region Ventana modal eliminar campo
+	======================================-->
     <div class="modal fade" id="modalEliminar" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -157,9 +168,13 @@ ob_start();
     </div>
     
 
-    <!-- MODALES PARA CAMPOS -->
+    <!--=====================================
+			#region MODALES PARA CAMPOS 
+	======================================-->
 
-    <!-- Ventana modal para agregar campo -->
+    <!--=====================================
+			#region agregar campo
+	======================================-->
     <div class="modal fade" id="modalAgregarCampo" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -207,7 +222,9 @@ ob_start();
 
 
 
-    <!-- Ventana modal para editar campo -->
+    <!--=====================================
+			#region Editar campo
+	======================================-->
     <div class="modal fade" id="modalEditarCampo" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -260,7 +277,9 @@ ob_start();
 
 
 
-    <!-- Ventana modal para eliminar campo -->
+    <!--=====================================
+			#region Eliminar campo
+	======================================-->
     <div class="modal fade" id="modalEliminarCampo" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -302,6 +321,10 @@ ob_start();
     <script src="script.js"></script>
      <!-- Incluir Bootstrap JS -->
      <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    
+    <!--=====================================
+			#region Funciones js
+	======================================-->
 
      <script>
     // Función para capturar el ID del registro seleccionado

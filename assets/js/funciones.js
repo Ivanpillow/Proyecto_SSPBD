@@ -1044,7 +1044,19 @@ function end_terminar_venta(xml){
 // #region compras-php
 //A partir de aqui pa abajooooooooooooooooooooooo
 
+function ver_detalles_compra(id_compra, e){
+	e.preventDefault();
 
+	// console.log(id_venta);
+	
+
+	$("#detalles_compra_"+id_compra).toggle('fast');
+	$("#detalles_compra_tabla_"+id_compra).toggle('fast');
+
+	//Falta hacer que se abra los detalles de la venta, sólo en el llenar_tabla del controller
+
+
+}
 
 
 

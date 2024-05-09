@@ -11,7 +11,9 @@
                     <li class="nav-item">
                         <a class="nav-link " aria-current="page" href="ventas">Ventas</a>
                     </li>
-                    
+                    <li class="nav-item">
+                        <a class="nav-link " aria-current="page" href="compras">Compras</a>
+                    </li>
                 </ul>
             </div>
         </div>

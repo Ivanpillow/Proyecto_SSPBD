@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 09-05-2024 a las 01:34:45
+-- Tiempo de generación: 09-05-2024 a las 04:21:33
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
@@ -49,6 +49,48 @@ INSERT INTO `clientes` (`id_cliente`, `nombre_cliente`, `email`, `password`, `di
 -- --------------------------------------------------------
 
 --
+-- Estructura de tabla para la tabla `compras`
+--
+
+CREATE TABLE `compras` (
+  `id_compra` int(11) NOT NULL,
+  `id_proveedor` int(11) NOT NULL,
+  `id_empleado` int(11) NOT NULL,
+  `fecha` date DEFAULT NULL,
+  `total_compra` float NOT NULL,
+  `status_compra` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Volcado de datos para la tabla `compras`
+--
+
+INSERT INTO `compras` (`id_compra`, `id_proveedor`, `id_empleado`, `fecha`, `total_compra`, `status_compra`) VALUES
+(1, 1, 1, '2024-04-03', 6000, 1),
+(2, 1, 2, '2024-05-03', 5000, 1);
+
+-- --------------------------------------------------------
+
+--
+-- Estructura Stand-in para la vista `detallescompras`
+-- (Véase abajo para la vista actual)
+--
+CREATE TABLE `detallescompras` (
+`id_compra` int(11)
+,`id_detalle_compra` int(11)
+,`id_producto` int(11)
+,`nombre_producto` varchar(45)
+,`id_producto_talla` int(11)
+,`id_talla` int(11)
+,`talla` varchar(30)
+,`cantidad` int(11)
+,`precio_unitario` float
+,`subtotal` float
+);
+
+-- --------------------------------------------------------
+
+--
 -- Estructura Stand-in para la vista `detallesventa`
 -- (Véase abajo para la vista actual)
 --
@@ -75,21 +117,22 @@ CREATE TABLE `detalles_compras` (
   `id_detalle_compra` int(11) NOT NULL,
   `id_compra` int(11) NOT NULL,
   `id_producto` int(11) NOT NULL,
+  `id_producto_talla` int(11) NOT NULL,
   `cantidad` int(11) DEFAULT NULL,
-  `precio` int(11) DEFAULT NULL,
-  `subtotal` int(11) NOT NULL
+  `precio_unitario` float DEFAULT NULL,
+  `subtotal` float NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Volcado de datos para la tabla `detalles_compras`
 --
 
-INSERT INTO `detalles_compras` (`id_detalle_compra`, `id_compra`, `id_producto`, `cantidad`, `precio`, `subtotal`) VALUES
-(1, 25, 87, 20, 300, 6000),
-(2, 26, 88, 2, 1200, 2400),
-(3, 20, 89, 1, 899, 899),
-(4, 27, 90, 5, 1000, 5000),
-(5, 28, 91, 3, 950, 2850);
+INSERT INTO `detalles_compras` (`id_detalle_compra`, `id_compra`, `id_producto`, `id_producto_talla`, `cantidad`, `precio_unitario`, `subtotal`) VALUES
+(1, 1, 1, 4, 5, 2899, 14495),
+(2, 1, 2, 5, 8, 3200, 25600),
+(3, 2, 4, 15, 3, 2999, 8697),
+(4, 2, 2, 5, 1, 3200, 3200),
+(5, 2, 1, 4, 9, 2899, 26091);
 
 -- --------------------------------------------------------
 
@@ -118,7 +161,10 @@ INSERT INTO `detalles_ventas` (`id_detalle_venta`, `id_venta`, `id_producto`, `i
 (22, 11, 2, 5, 3, 3200, 9600),
 (23, 11, 2, 7, 2, 3200, 6400),
 (25, 12, 2, 5, 1, 3200, 3200),
-(26, 12, 4, 15, 2, 2999, 5998);
+(26, 12, 4, 15, 2, 2999, 5998),
+(27, 14, 4, 15, 2, 2999, 5998),
+(28, 13, 1, 2, 2, 2899, 5798),
+(29, 13, 1, 3, 1, 2899, 2899);
 
 --
 -- Disparadores `detalles_ventas`
@@ -170,7 +216,7 @@ CREATE TABLE `empleados` (
 --
 
 INSERT INTO `empleados` (`id_empleado`, `nombre_empleado`, `email`, `password`, `cargo`, `status`) VALUES
-(1, 'Ivan', 'ivan@gmail.com', '1234', 'toiletcleaner', 1),
+(1, 'Ivan', 'ivan@gmail.com', '1234', 'Dueño', 1),
 (2, 'Diego', 'diego@gmail.com', '123', 'empleado', 1),
 (3, 'Emmanuel', 'emma@gmail.com', '123', 'empleado', 1),
 (4, 'Luis', 'angelo@gmail.com', '123', 'gerente', 1),
@@ -258,7 +304,7 @@ INSERT INTO `producto_talla` (`id_producto_talla`, `id_producto`, `id_talla`) VA
 
 CREATE TABLE `proveedores` (
   `id_proveedor` int(11) NOT NULL,
-  `nombreProveedor` varchar(45) DEFAULT NULL,
+  `nombre_proveedor` varchar(45) DEFAULT NULL,
   `direccion` varchar(45) DEFAULT NULL,
   `telefono` int(11) NOT NULL,
   `status` int(11) DEFAULT NULL,
@@ -269,7 +315,7 @@ CREATE TABLE `proveedores` (
 -- Volcado de datos para la tabla `proveedores`
 --
 
-INSERT INTO `proveedores` (`id_proveedor`, `nombreProveedor`, `direccion`, `telefono`, `status`, `cantidadReestock`) VALUES
+INSERT INTO `proveedores` (`id_proveedor`, `nombre_proveedor`, `direccion`, `telefono`, `status`, `cantidadReestock`) VALUES
 (1, 'TenisVB', 'Corregidora 54', 332522323, 1, 100),
 (2, 'TenisJD', 'islas antillas 55', 552522323, 1, 50),
 (3, 'TenisDK', 'hidalgo 233', 332522323, 0, 0),
@@ -392,7 +438,28 @@ INSERT INTO `ventas` (`id_venta`, `id_cliente`, `id_empleado`, `fecha`, `total_v
 (1, 3, 4, '2024-03-20', 13347, 1),
 (11, 1, 1, '2024-05-08', 21798, 1),
 (12, 2, 2, '2024-05-09', 9198, 1),
-(13, 1, 1, '2024-05-09', 0, 0);
+(13, 1, 1, '2024-05-09', 8697, 1),
+(14, 4, 3, '2024-05-09', 5998, 1);
+
+-- --------------------------------------------------------
+
+--
+-- Estructura Stand-in para la vista `vista_compras`
+-- (Véase abajo para la vista actual)
+--
+CREATE TABLE `vista_compras` (
+`id_compra` int(11)
+,`id_proveedor` int(11)
+,`id_empleado` int(11)
+,`fecha` date
+,`total_compra` float
+,`status_compra` int(11)
+,`nombre_proveedor` varchar(45)
+,`direccion` varchar(45)
+,`telefono` int(11)
+,`cantidadReestock` int(11)
+,`nombre_empleado` varchar(80)
+);
 
 -- --------------------------------------------------------
 
@@ -415,6 +482,15 @@ CREATE TABLE `vista_ventas` (
 -- --------------------------------------------------------
 
 --
+-- Estructura para la vista `detallescompras`
+--
+DROP TABLE IF EXISTS `detallescompras`;
+
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `detallescompras`  AS SELECT `cmp`.`id_compra` AS `id_compra`, `dc`.`id_detalle_compra` AS `id_detalle_compra`, `dc`.`id_producto` AS `id_producto`, `p`.`nombre_producto` AS `nombre_producto`, `dc`.`id_producto_talla` AS `id_producto_talla`, `pt`.`id_talla` AS `id_talla`, `t`.`talla` AS `talla`, `dc`.`cantidad` AS `cantidad`, `dc`.`precio_unitario` AS `precio_unitario`, `dc`.`subtotal` AS `subtotal` FROM ((((`compras` `cmp` join `detalles_compras` `dc` on(`cmp`.`id_compra` = `dc`.`id_compra`)) join `producto_talla` `pt` on(`dc`.`id_producto_talla` = `pt`.`id_producto_talla`)) join `tallas` `t` on(`pt`.`id_talla` = `t`.`id_talla`)) join `productos` `p` on(`dc`.`id_producto` = `p`.`id_producto`)) ;
+
+-- --------------------------------------------------------
+
+--
 -- Estructura para la vista `detallesventa`
 --
 DROP TABLE IF EXISTS `detallesventa`;
@@ -429,6 +505,15 @@ CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW 
 DROP TABLE IF EXISTS `informacioncliente`;
 
 CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `informacioncliente`  AS SELECT `c`.`id_cliente` AS `id_cliente`, `c`.`nombre_cliente` AS `nombre_cliente`, `c`.`email` AS `email`, `c`.`direccion` AS `direccion`, count(`v`.`id_venta`) AS `total_ventas_cliente`, sum(`v`.`total_venta`) AS `total_venta_status_1` FROM (`clientes` `c` left join `ventas` `v` on(`c`.`id_cliente` = `v`.`id_cliente` and `v`.`status_venta` = 1)) GROUP BY `c`.`nombre_cliente`, `c`.`email`, `c`.`direccion` ;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura para la vista `vista_compras`
+--
+DROP TABLE IF EXISTS `vista_compras`;
+
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `vista_compras`  AS SELECT `cmp`.`id_compra` AS `id_compra`, `cmp`.`id_proveedor` AS `id_proveedor`, `cmp`.`id_empleado` AS `id_empleado`, `cmp`.`fecha` AS `fecha`, `cmp`.`total_compra` AS `total_compra`, `cmp`.`status_compra` AS `status_compra`, `prove`.`nombre_proveedor` AS `nombre_proveedor`, `prove`.`direccion` AS `direccion`, `prove`.`telefono` AS `telefono`, `prove`.`cantidadReestock` AS `cantidadReestock`, `empl`.`nombre_empleado` AS `nombre_empleado` FROM ((`compras` `cmp` join `proveedores` `prove` on(`cmp`.`id_proveedor` = `prove`.`id_proveedor`)) join `empleados` `empl` on(`cmp`.`id_empleado` = `empl`.`id_empleado`)) ORDER BY `cmp`.`fecha` DESC ;
 
 -- --------------------------------------------------------
 
@@ -448,6 +533,12 @@ CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW 
 --
 ALTER TABLE `clientes`
   ADD PRIMARY KEY (`id_cliente`);
+
+--
+-- Indices de la tabla `compras`
+--
+ALTER TABLE `compras`
+  ADD PRIMARY KEY (`id_compra`);
 
 --
 -- Indices de la tabla `detalles_compras`
@@ -508,6 +599,12 @@ ALTER TABLE `clientes`
   MODIFY `id_cliente` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=23;
 
 --
+-- AUTO_INCREMENT de la tabla `compras`
+--
+ALTER TABLE `compras`
+  MODIFY `id_compra` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+
+--
 -- AUTO_INCREMENT de la tabla `detalles_compras`
 --
 ALTER TABLE `detalles_compras`
@@ -517,7 +614,7 @@ ALTER TABLE `detalles_compras`
 -- AUTO_INCREMENT de la tabla `detalles_ventas`
 --
 ALTER TABLE `detalles_ventas`
-  MODIFY `id_detalle_venta` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=27;
+  MODIFY `id_detalle_venta` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=30;
 
 --
 -- AUTO_INCREMENT de la tabla `empleados`
@@ -553,7 +650,7 @@ ALTER TABLE `tallas`
 -- AUTO_INCREMENT de la tabla `ventas`
 --
 ALTER TABLE `ventas`
-  MODIFY `id_venta` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
+  MODIFY `id_venta` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

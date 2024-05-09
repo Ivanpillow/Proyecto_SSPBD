@@ -75,10 +75,10 @@ if (Requesting("action")=="llenar_tabla"){
         case 12:
             $query1 .= " ORDER BY stock DESC";
             break;
-        case 11:
+        case 13:
             $query1 .= " ORDER BY fecha ASC";
             break;
-        case 12:
+        case 14:
             $query1 .= " ORDER BY fecha DESC";
             break;
         default:
@@ -1075,6 +1075,8 @@ if(Requesting("action") == "terminar_venta"){
 	XML_Envelope($result);     
 	exit;	
 }
+
+
 
 
 ?>

@@ -29,7 +29,9 @@ ob_start();
 
     ?>
 
-    
+    <!--=====================================
+			#region Titulo index
+	======================================-->
     <div class="container">
         <h1>Punto de Venta de Tenis</h1>
         <h2>Registros</h2>
