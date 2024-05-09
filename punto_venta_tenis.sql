@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 09-05-2024 a las 04:21:33
+-- Tiempo de generación: 09-05-2024 a las 23:14:12
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
@@ -66,8 +66,8 @@ CREATE TABLE `compras` (
 --
 
 INSERT INTO `compras` (`id_compra`, `id_proveedor`, `id_empleado`, `fecha`, `total_compra`, `status_compra`) VALUES
-(1, 1, 1, '2024-04-03', 6000, 1),
-(2, 1, 2, '2024-05-03', 5000, 1);
+(1, 1, 1, '2024-05-07', 6000, 1),
+(2, 1, 2, '2024-05-09', 5000, 1);
 
 -- --------------------------------------------------------
 
@@ -261,7 +261,10 @@ INSERT INTO `productos` (`id_producto`, `nombre_producto`, `descripcion`, `preci
 (1, 'Air Jordan 1 Low Bred Toe 2.0', 'Un par reconocido por cualquiera, Esta silueta', 2899, 8, 'Tenis Jordan 1', 1),
 (2, 'Air Jordan 1 Mid SE', 'Las Air Jordan 1 Mid SE mantienen el atractiv', 3200, 3, 'Tenis Jordan 1', 1),
 (3, 'Jordan Jumpman', 'Póntelas y en marcha. Disfruta de la amortiguación de espuma gruesa y ligera para los días de playa o para salir después del partido.', 1149, 2, 'Sandalias', 0),
-(4, 'Nike Dunk Low', 'Este ícono del básquetbol de los 80, creado para la cancha y adaptado al estilo urbano, vuelve con detalles clásicos y un estilo de básquetbol retro.', 2999, 7, 'Tenis dunk', 1);
+(4, 'Nike Dunk Low', 'Este ícono del básquetbol de los 80, creado para la cancha y adaptado al estilo urbano, vuelve con detalles clásicos y un estilo de básquetbol retro.', 2999, 7, 'Tenis dunk', 1),
+(5, 'Air Jordan 1 High OG Black & White', 'Clásico, original, remasterizado. Este AJ1 en blanco y negro, que está listo para salir a las calles con sofisticación', 4499, 12, 'Tenis Jordan 1', 1),
+(6, 'Jordan 1 Retro Low Black Phantom', 'Travis Scott, artista de hip-hop, fundador de una casa discográfica y nativo de Houston, Texas, continúa dejando su impronta en el AJ1 Low, al mantenerlo clásico y fiel a su amor p', 3800, 4, 'Tenis Jordan 1', 1),
+(7, 'Jumpman Jack TR', 'La arena está completamente abarrotada. La gente te llama. El escenario está listo. Luces, cámara, Jack Diseñados para seguir las especificaciones exactas y el estilo exclusivo d', 4500, 2, 'Tenis Jumpman Jack', 1);
 
 -- --------------------------------------------------------
 
@@ -626,7 +629,7 @@ ALTER TABLE `empleados`
 -- AUTO_INCREMENT de la tabla `productos`
 --
 ALTER TABLE `productos`
-  MODIFY `id_producto` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id_producto` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT de la tabla `producto_talla`
