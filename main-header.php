@@ -6,13 +6,16 @@
                         <a class="nav-link" aria-current="page" href="index">Inicio</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link " aria-current="page" href="estructura-de-tablas">Estructura de Tablas</a>
-                    </li>
-                    <li class="nav-item">
                         <a class="nav-link " aria-current="page" href="ventas">Ventas</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link " aria-current="page" href="compras">Compras</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link " aria-current="page" href="registros">Registros</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link " aria-current="page" href="estructura-de-tablas">Estructura de Tablas</a>
                     </li>
                 </ul>
             </div>

@@ -1053,6 +1053,7 @@ if(Requesting("action") == "terminar_venta"){
 
 	if($cuantos > 0){
 		$query2 = "UPDATE ventas SET status_venta = 1 WHERE id_venta = $id_venta";
+		
 		if(ExecuteSQL($query2)){
 			$resultStatus = "ok";
             $resultText = "Venta procesada. ";
@@ -1060,6 +1061,19 @@ if(Requesting("action") == "terminar_venta"){
             $resultStatus = "error";
             $resultText = "Ocurrió un error. Inténtalo de nuevo. ";
         }
+
+
+		//Restar stock a productos
+		$query3 = "SELECT * FROM detalles_ventas WHERE id_venta = $id_venta";
+		$detalles_ventas = DatasetSQL($query3);
+
+		while($row3 = mysqli_fetch_array($detalles_ventas)){
+			$id_producto = $row3['id_producto'];
+            $cantidad = $row3['cantidad'];
+
+			$query4 = "UPDATE productos SET stock = stock - $cantidad WHERE id_producto = $id_producto";
+			ExecuteSQL($query4);
+		}
 
 	} else{
 		$resultStatus = "error";
@@ -1075,6 +1089,279 @@ if(Requesting("action") == "terminar_venta"){
 	XML_Envelope($result);     
 	exit;	
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+if(Requesting("action") == "agregar_producto"){
+	$nombre_producto = Requesting("nombre_producto");
+	$descripcion = Requesting("descripcion");
+	$precio = Requesting("precio");
+	$stock = Requesting("stock");
+	$categoria = Requesting("categoria");
+
+    $resultStatus = "ok";
+    $resultText = "Correcto.";
+
+
+	$query1 = "SELECT COUNT(*) AS cuantos FROM productos WHERE nombre_producto = '$nombre_producto'";
+	$cuantos = GetValueSQL($query1, 'cuantos');
+
+	if($cuantos > 0){
+		$resultStatus = "error";
+        $resultText = "El producto ya existe.";
+	} else{
+		$query2 = "INSERT INTO productos (nombre_producto, descripcion, precio, stock, categoria) VALUES ('$nombre_producto', '$descripcion', $precio, $stock, '$categoria')";
+        if(ExecuteSQL($query2)){
+            $resultStatus = "ok";
+            $resultText = "Producto agregado.";
+        } else{
+            $resultStatus = "error";
+            $resultText = "Ocurrió un error. Inténtalo de nuevo. ";
+        }
+	}
+
+
+
+	$result = array( 
+		'result' 				=> $resultStatus, 
+		'result_text' 			=> $resultText
+	);		
+	XML_Envelope($result);     
+	exit;
+}
+
+if(Requesting("action") == "llenar_form_producto"){
+	$id_producto = Requesting("id_producto");
+
+    $resultStatus = "ok";
+    $resultText = "Correcto.";
+
+	$query1 = "SELECT * FROM productos WHERE id_producto = $id_producto";
+	$nombre_producto = GetValueSQL($query1, 'nombre_producto');
+	$descripcion = GetValueSQL($query1, 'descripcion');
+	$precio = GetValueSQL($query1, 'precio');
+	$stock = GetValueSQL($query1,'stock');
+	$categoria = GetValueSQL($query1, 'categoria');
+
+
+
+
+
+	$result = array( 
+		'id_producto'			=> $id_producto,
+		'nombre_producto'		=> $nombre_producto,
+		'descripcion'           => $descripcion,
+        'precio'                => $precio,
+        'stock'                 => $stock,
+        'categoria'             => $categoria,
+		'result' 				=> $resultStatus, 
+		'result_text' 			=> $resultText
+	);		
+	XML_Envelope($result);     
+	exit;
+}
+
+
+
+if(Requesting("action") == "editar_producto"){
+	$id_producto = Requesting("id_producto");
+	$nombre_producto = Requesting("nombre_producto");
+	$descripcion = Requesting("descripcion");
+	$precio = Requesting("precio");
+	$stock = Requesting("stock");
+	$categoria = Requesting("categoria");
+
+    $resultStatus = "ok";
+    $resultText = "Correcto.";
+
+
+	$query1 = "SELECT COUNT(*) AS existe FROM productos WHERE id_producto = $id_producto";
+	// echo $query1;
+	$existe = GetValueSQL($query1, 'existe');
+
+	if($existe == 0){
+		$resultStatus = "error";
+        $resultText = "El producto no existe.";
+	} else{
+		$query2 = "UPDATE productos SET nombre_producto = '$nombre_producto', descripcion = '$descripcion', precio = $precio, stock = $stock, categoria = '$categoria' WHERE id_producto = $id_producto";
+		// echo $query2;
+		if(ExecuteSQL($query2)){
+			$resultStatus = "ok";
+            $resultText = "Producto modificado.";
+        } else{ 
+			$resultStatus = "error";
+			$resultText = "Ocurrió un error. Inténtalo de nuevo. ";
+		}
+	}
+
+
+
+	$result = array( 
+		'result' 				=> $resultStatus, 
+		'result_text' 			=> $resultText
+	);		
+	XML_Envelope($result);     
+	exit;
+}
+
+if(Requesting("action") == "cambiar_status_producto"){
+	$id_producto = Requesting("id_producto");
+	$tipo = Requesting("tipo");
+
+    $resultStatus = "ok";
+    $resultText = "Correcto.";
+
+	$query1 = "UPDATE productos SET status = $tipo WHERE id_producto = $id_producto";
+
+	switch($tipo){
+		case 1:
+			$resultText = "Producto activado.";
+            break;
+        case 0:
+			$resultText = "Producto desactivado.";
+			break;
+	}
+
+
+	if(ExecuteSQL($query1)){
+		$resultStatus = "ok";
+    } else{
+		$resultStatus = "error";
+		$resultText = "Ocurrió un error. Inténtalo de nuevo. ";
+	}
+	
+
+
+	$result = array( 
+		'result' 				=> $resultStatus, 
+		'result_text' 			=> $resultText
+	);		
+	XML_Envelope($result);     
+	exit;
+}
+
+
+
+
+if(Requesting("action") == "cambiar_status_talla"){
+	$id_producto_talla = Requesting("id_producto_talla");
+	$tipo = Requesting("tipo");
+
+    $resultStatus = "ok";
+    $resultText = "Correcto.";
+
+	$query1 = "UPDATE producto_talla SET status_producto_talla = $tipo WHERE id_producto_talla = $id_producto_talla";
+
+	switch($tipo){
+		case 1:
+			$resultText = "Talla activada.";
+            break;
+        case 0:
+			$resultText = "Talla desactivada.";
+			break;
+	}
+
+
+	if(ExecuteSQL($query1)){
+		$resultStatus = "ok";
+    } else{
+		$resultStatus = "error";
+		$resultText = "Ocurrió un error. Inténtalo de nuevo. ";
+	}
+	
+
+
+	$result = array( 
+		'result' 				=> $resultStatus, 
+		'result_text' 			=> $resultText
+	);		
+	XML_Envelope($result);     
+	exit;
+}
+
+
+
+if(Requesting("action") == "llenar_select_producto_tallas"){
+    $id_producto = Requesting("id_producto");
+
+    $resultStatus = "ok";
+    $resultText = "Correcto.";
+
+    $xmlRow = '<option value="0">Selecciona una talla...</option>';
+
+   
+	$query1 = "SELECT * FROM tallas";
+	$tallas = DatasetSQL($query1);
+
+	while($row1 = mysqli_fetch_array($tallas)){
+		$id_talla = $row1['id_talla'];
+		$talla = $row1['talla'];
+		$xmlRow .=  "<option value='$id_talla'>$talla</option>";
+	}
+
+
+    $result = array( 
+        'select_tallas'     	=> $xmlRow, 
+        'result'                => $resultStatus, 
+        'result_text'           => $resultText
+    );      
+    XML_Envelope($result);     
+    exit;   
+}
+
+
+if(Requesting("action") == "agregar_producto_talla"){
+    $id_producto = Requesting("id_producto");
+	$id_talla = Requesting("id_talla");
+
+    $resultStatus = "ok";
+    $resultText = "Correcto.";
+
+	$query1 = "SELECT COUNT(*) AS existe FROM producto_talla WHERE id_producto = $id_producto AND id_talla = $id_talla";
+	$existe = GetValueSQL($query1, 'existe');
+
+	if($existe == 0){
+		$query2 = "INSERT INTO producto_talla (id_producto, id_talla) VALUES ($id_producto, $id_talla)";
+        if(ExecuteSQL($query2)){
+            $resultStatus = "ok";
+            $resultText = "Talla agregada.";
+        } else{ 
+            $resultStatus = "error";
+            $resultText = "Ocurrió un error. Inténtalo de nuevo. ";
+        }
+	} else{
+		$resultStatus = "error";
+        $resultText = "La talla ya existe.";
+	}
+
+
+	
+    $result = array( 
+        'result'                => $resultStatus, 
+        'result_text'           => $resultText
+    );      
+    XML_Envelope($result);     
+    exit;  
+}
+
+
+
+
+
 
 
 

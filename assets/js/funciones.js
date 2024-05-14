@@ -528,7 +528,6 @@ function end_llenar_form_tabla(xml){
 
 
 
-
 //#region ventas.php
 
 
@@ -544,6 +543,18 @@ function ver_detalles_venta(id_venta, e){
 	//Falta hacer que se abra los detalles de la venta, sólo en el llenar_tabla del controller
 
 
+}
+
+
+function ver_descripcion_producto(id_producto, e){
+	e.preventDefault();
+
+    // console.log(id_producto);
+    
+
+    $("#descripcion_producto_"+id_producto).toggle('fast');
+
+    //Falta hacer que se abra los detalles de la venta, sólo en el llenar_tabla del controller
 }
 
 
@@ -1060,6 +1071,445 @@ function ver_detalles_compra(id_compra, e){
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//#region index.php 
+
+
+
+
+//#region (productos)
+
+
+function agregar_producto(){
+	var nombre_producto = $("#add_nombre_producto").val();
+	var descripcion = $("#add_descripcion").val();
+	var precio = $("#add_precio").val();
+	var stock = $("#add_stock").val();
+	var categoria = $("#add_categoria").val();
+
+	continua = 1;
+
+	//Verificar campos vacíos
+	$("#form_agregar_producto .obligatorio").each(function (index) {
+		if ($(this).val() == "") {
+			continua = 0;
+			Swal.fire({
+				icon: 'error',
+				title: '¡Error!',
+				text: "Llena todos los campos obligatorios.",
+				timer: 1000,
+				timerProgressBar: true,
+			})
+			return;
+		} 
+	});
+
+
+	if(!validarPrecio(precio)){
+		continua = 0;
+		Swal.fire({
+			icon: 'error',
+			title: '¡Error!',
+			text: "Ingresa un precio válido.",
+			timer: 1000,
+			timerProgressBar: true,
+		})
+		return;
+	}
+
+
+	if(!validarCantidad(stock)){
+		continua = 0;
+		Swal.fire({
+			icon: 'error',
+			title: '¡Error!',
+			text: "Ingresa una cantidad en almacén válida.",
+			timer: 1000,
+			timerProgressBar: true,
+		})
+		return;
+	}
+
+
+	if(continua == 1){
+		$.post("controller.php",
+		{ 	
+			action 			: "agregar_producto",
+			nombre_producto     : nombre_producto,
+			descripcion 		: descripcion,
+			precio				: precio,
+			stock				: stock,
+			categoria			: categoria,
+		}, end_agregar_producto);
+	}
+
+}
+
+
+function end_agregar_producto(xml){
+	$(xml).find("response").each(function(i){		 
+		if($(this).find("result").text()=="ok"){ 
+			$('#modalAgregarProducto').modal('hide');
+			$("#div_tabla_productos").load(location.href + " #div_tabla_productos");
+
+			// llenar_tabla_productos();
+
+			$("#form_agregar_producto")[0].reset(); //Limpiar formulario
+			
+			Swal.fire({
+				icon: 'success',
+				title: '¡Correcto!',
+				text: $(this).find("result_text").text(),
+				timer: 1000,
+				timerProgressBar: true,
+			})
+
+			// setTimeout(function() {
+			// 	location.reload();
+			// }, 1000);
+			
+		}else{
+			$('#modalAgregarProducto').modal('hide');
+			Swal.fire({
+				icon: 'error',
+				title: '¡Error!',
+				text: $(this).find("result_text").text(),
+				timer: 1000,
+				timerProgressBar: true,
+			})
+		}
+	});
+}
+
+
+function llenar_form_producto(id_producto){
+	$.post("controller.php",
+		{ 	
+			action 			: "llenar_form_producto",
+			id_producto     : id_producto,
+		}, end_llenar_form_producto);
+}
+
+function end_llenar_form_producto(xml){
+	$(xml).find("response").each(function(i){		 
+		if($(this).find("result").text()=="ok"){ 
+			// console.log("Si llega aqui");
+			$("#edit_id_producto").val($(this).find("id_producto").text());
+			$("#edit_nombre_producto").val($(this).find("nombre_producto").text());
+			$("#edit_descripcion").val($(this).find("descripcion").text());
+			$("#edit_precio").val($(this).find("precio").text());
+			$("#edit_stock").val($(this).find("stock").text());
+			$("#edit_categoria").val($(this).find("categoria").text());
+
+		}
+	});
+}
+
+
+
+function editar_producto(){
+	var id_producto	= $("#edit_id_producto").val();
+	var nombre_producto = $("#edit_nombre_producto").val();
+	var descripcion = $("#edit_descripcion").val();
+	var precio = $("#edit_precio").val();
+	var stock = $("#edit_stock").val();
+	var categoria = $("#edit_categoria").val();
+
+	continua = 1;
+
+	//Verificar campos vacíos
+	$("#form_editar_producto .obligatorio").each(function (index) {
+		if ($(this).val() == "") {
+			continua = 0;
+			Swal.fire({
+				icon: 'error',
+				title: '¡Error!',
+				text: "Llena todos los campos obligatorios.",
+				timer: 1000,
+				timerProgressBar: true,
+			})
+			return;
+		} 
+	});
+
+
+	if(!validarPrecio(precio)){
+		continua = 0;
+		Swal.fire({
+			icon: 'error',
+			title: '¡Error!',
+			text: "Ingresa un precio válido.",
+			timer: 1000,
+			timerProgressBar: true,
+		})
+		return;
+	}
+
+
+	if(!validarCantidad(stock)){
+		continua = 0;
+		Swal.fire({
+			icon: 'error',
+			title: '¡Error!',
+			text: "Ingresa una cantidad en almacén válida.",
+			timer: 1000,
+			timerProgressBar: true,
+		})
+		return;
+	}
+
+
+	if(continua == 1){
+		$.post("controller.php",
+		{ 	
+			action 			: "editar_producto",
+			id_producto			: id_producto,
+			nombre_producto     : nombre_producto,
+			descripcion 		: descripcion,
+			precio				: precio,
+			stock				: stock,
+			categoria			: categoria,
+		}, end_editar_producto);
+	}
+
+}
+
+
+function end_editar_producto(xml){
+	$(xml).find("response").each(function(i){		 
+		if($(this).find("result").text()=="ok"){ 
+			$('#modalEditarProducto').modal('hide');
+			$("#div_tabla_productos").load(location.href + " #div_tabla_productos");
+
+			// llenar_tabla_productos();
+
+			$("#form_editar_producto")[0].reset(); //Limpiar formulario
+			
+			Swal.fire({
+				icon: 'success',
+				title: '¡Correcto!',
+				text: $(this).find("result_text").text(),
+				timer: 1000,
+				timerProgressBar: true,
+			})
+
+			// setTimeout(function() {
+			// 	location.reload();
+			// }, 1000);
+			
+		}else{
+			$('#modalEditarProducto').modal('hide');
+			Swal.fire({
+				icon: 'error',
+				title: '¡Error!',
+				text: $(this).find("result_text").text(),
+				timer: 1000,
+				timerProgressBar: true,
+			})
+		}
+	});
+}
+
+
+function cambiar_status_producto(id_producto, tipo, e){
+	e.preventDefault();
+
+	$.post("controller.php",
+	{ 	
+		action 			: "cambiar_status_producto",
+		id_producto		: id_producto,
+		tipo			: tipo
+	}, end_cambiar_status_producto);
+	
+}
+
+
+
+function end_cambiar_status_producto(xml){
+	$(xml).find("response").each(function(i){		 
+		if($(this).find("result").text()=="ok"){ 
+			$("#div_tabla_productos").load(location.href + " #div_tabla_productos");
+
+			Swal.fire({
+				icon: 'success',
+				title: '¡Correcto!',
+				text: $(this).find("result_text").text(),
+				timer: 1000,
+				timerProgressBar: true,
+			})
+
+		}
+	});
+}
+
+
+
+function cambiar_status_talla(id_producto_talla, tipo, e){
+	e.preventDefault();
+
+	$.post("controller.php",
+	{ 	
+		action 			: "cambiar_status_talla",
+		id_producto_talla	: id_producto_talla,
+		tipo				: tipo
+	}, end_cambiar_status_talla);
+	
+}
+
+
+
+function end_cambiar_status_talla(xml){
+	$(xml).find("response").each(function(i){		 
+		if($(this).find("result").text()=="ok"){ 
+			$("#div_tabla_tallas").load(location.href + " #div_tabla_tallas");
+
+			Swal.fire({
+				icon: 'success',
+				title: '¡Correcto!',
+				text: $(this).find("result_text").text(),
+				timer: 1000,
+				timerProgressBar: true,
+			})
+
+		}
+	});
+}
+
+
+
+
+function llenar_select_producto_tallas(id_producto, e){
+	e.preventDefault();
+
+	// console.log("ID Producto: " + id_producto);
+
+	$.post("controller.php",
+	{ 	
+		action 		: "llenar_select_producto_tallas",
+		id_producto : id_producto,
+	}, end_llenar_select_producto_tallas);
+}
+
+function end_llenar_select_producto_tallas(xml){
+	$(xml).find("response").each(function(){
+        if($(this).find("result").text() == "ok"){
+            $("#select_talla").html($(this).find("select_tallas").text());
+			// console.log("ID Producto: "+ $(this).find("id_producto").text());
+
+        }
+    });
+}
+
+
+
+function agregar_producto_talla(id_producto){
+	var id_talla = $("#select_talla").val();
+
+
+	$.post("controller.php",
+	{ 	
+		action 		: "agregar_producto_talla",
+		id_producto : id_producto,
+		id_talla	: id_talla,
+	}, end_agregar_producto_talla);
+}
+
+
+function end_agregar_producto_talla(xml){
+	console.log("Llega aqwui");
+	$(xml).find("response").each(function(i){		 
+		if($(this).find("result").text()=="ok"){ 
+			$('#modalAgregarTalla').modal('hide');
+			$("#div_tabla_tallas").load(location.href + " #div_tabla_tallas");
+
+			$("#form_agregar_talla")[0].reset(); //Limpiar formulario
+			
+			Swal.fire({
+				icon: 'success',
+				title: '¡Correcto!',
+				text: $(this).find("result_text").text(),
+				timer: 1000,
+				timerProgressBar: true,
+			})
+
+			
+		}else{
+			$('#modalAgregarTalla').modal('hide');
+			Swal.fire({
+				icon: 'error',
+				title: '¡Error!',
+				text: $(this).find("result_text").text(),
+				timer: 1000,
+				timerProgressBar: true,
+			})
+		}
+	});
+}
+
+
+
+
+
+
+function validarPrecio(precio) {
+    // Expresión regular para validar precios en formato numérico con hasta dos decimales
+    var regexPrecio = /^\d+(\.\d{1,2})?$/;
+
+    // Comprobamos si el precio coincide con la expresión regular
+    if (regexPrecio.test(precio)) {
+        // El precio es válido
+        return true;
+    } else {
+        // El precio no es válido
+        return false;
+    }
+}
+
+function validarCantidad(cantidad) {
+    // Verificar si la cantidad es un número
+    if (!isNaN(cantidad)) {
+        // La cantidad es un número
+        return true;
+    } else {
+        // La cantidad no es un número
+        return false;
+    }
+}
 
 
 
