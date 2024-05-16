@@ -492,6 +492,12 @@ if(Requesting("action")=="llenar_form_tabla"){
 }
 
 
+
+
+
+		// INICIO DE FUNCIONES DE VENTAS
+
+
 if(Requesting("action")=="llenar_tabla_ventas"){
 	$select_ventas = Requesting("select_ventas");
 	// echo $select_ventas;
@@ -519,101 +525,104 @@ if(Requesting("action")=="llenar_tabla_ventas"){
 		
 		// echo $query1;
 	}
+
+
 	
-	// echo $query1;
-	$existe = GetValueSQL($query1, 'existe');
+	// // echo $query1;
+	// $existe = GetValueSQL($query1, 'existe');
 
-	$total_vendido = 0;
+	// $total_vendido = 0;
 	
-	if($existe > 0){
+	// if($existe > 0){
 
-		if($select_ventas == 1){
-			$query4 = "SELECT SUM(ventas.total_venta) AS total_vendido FROM ventas";
-			$total_vendido = GetValueSQL($query4, 'total_vendido');
+	// 	if($select_ventas == 1){
+	// 		$query4 = "SELECT SUM(ventas.total_venta) AS total_vendido FROM ventas";
+	// 		$total_vendido = GetValueSQL($query4, 'total_vendido');
 
-			$query2 = "SELECT * FROM ventas 
-			INNER JOIN clientes ON ventas.id_cliente = clientes.id_cliente
-			INNER JOIN empleados ON ventas.id_empleado = empleados.id_empleado
-			ORDER BY fecha DESC";
+	// 		$query2 = "SELECT * FROM ventas 
+	// 		INNER JOIN clientes ON ventas.id_cliente = clientes.id_cliente
+	// 		INNER JOIN empleados ON ventas.id_empleado = empleados.id_empleado
+	// 		ORDER BY fecha DESC";
 			
-		} else{
-			$query4 = "SELECT SUM(ventas.total_venta) AS total_vendido FROM ventas
-			WHERE ventas.fecha BETWEEN '$primer_dia_mes' AND '$ultimo_dia_mes'";
-			$total_vendido = GetValueSQL($query4, 'total_vendido');
-			// echo $query4;
+	// 	} else{
+	// 		$query4 = "SELECT SUM(ventas.total_venta) AS total_vendido FROM ventas
+	// 		WHERE ventas.fecha BETWEEN '$primer_dia_mes' AND '$ultimo_dia_mes'";
+	// 		$total_vendido = GetValueSQL($query4, 'total_vendido');
+	// 		//echo $query4;
 
 			
-			$query2 = "SELECT * FROM ventas 
-			INNER JOIN clientes ON ventas.id_cliente = clientes.id_cliente
-			INNER JOIN empleados ON ventas.id_empleado = empleados.id_empleado
-			WHERE ventas.fecha BETWEEN '$primer_dia_mes' AND '$ultimo_dia_mes'
-			ORDER BY fecha DESC";
-			// echo $query2;
-		}
+	// 		$query2 = "SELECT * FROM ventas 
+	// 		INNER JOIN clientes ON ventas.id_cliente = clientes.id_cliente
+	// 		INNER JOIN empleados ON ventas.id_empleado = empleados.id_empleado
+	// 		WHERE ventas.fecha BETWEEN '$primer_dia_mes' AND '$ultimo_dia_mes'
+	// 		ORDER BY fecha DESC";
+	// 		//echo $query2;
+	// 	}
 		
-		// echo $query2;
-		$result2 = DatasetSQL($query2);
+	// 	// echo $query2;
+	// 	$result2 = DatasetSQL($query2);
 
-		while($row2 = mysqli_fetch_array($result2)){
-			$id_venta = $row2['id_venta'];
-			$nombre_cliente = $row2['nombre_cliente'];
-			$nombre_empleado = $row2['nombre_empleado'];
-			$fecha = $row2['fecha'];
-			$total_venta = $row2['total_venta'];
+	// 	while($row2 = mysqli_fetch_array($result2)){
+	// 		$id_venta = $row2['id_venta'];
+	// 		$nombre_cliente = $row2['nombre_cliente'];
+	// 		$nombre_empleado = $row2['nombre_empleado'];
+	// 		$fecha = $row2['fecha'];
+	// 		$total_venta = $row2['total_venta'];
 
-			$xmlRow .=  "<tr>";
-			$xmlRow .=  "<td>$id_venta</td>";
-			$xmlRow .=  "<td>$nombre_cliente</td>";
-			$xmlRow .=  "<td>$nombre_empleado</td>";
-			$xmlRow .=  "<td>$fecha</td>";
-			$xmlRow .=  "<td>$".number_format($total_venta, 2)."</td>";
-			$xmlRow .=  "<td><a type='button' href='' onclick='ver_detalles_venta(".$id_venta.", event)'>Ver detalles</a></td>";
-			$xmlRow .=  "</tr>";
+	// 		$xmlRow .=  "<tr>";
+	// 		$xmlRow .=  "<td>$id_venta</td>";
+	// 		$xmlRow .=  "<td>$nombre_cliente</td>";
+	// 		$xmlRow .=  "<td>$nombre_empleado</td>";
+	// 		$xmlRow .=  "<td>$fecha</td>";
+	// 		$xmlRow .=  "<td>$".number_format($total_venta, 2)."</td>";
+	// 		$xmlRow .=  "<td><a type='button' href='' onclick='ver_detalles_venta(".$id_venta.", event)'>Ver detalles</a></td>";
+	// 		$xmlRow .=  "</tr>";
 			
 			
-			$xmlRow .= "<tr class='detalles_venta' id='detalles_venta_tabla_$id_venta;'>";
-			$xmlRow .= "<td colspan='6'>";
-			$xmlRow .= "<ul>";
+	// 		$xmlRow .= "<tr class='detalles_venta' id='detalles_venta_tabla_$id_venta;'>";
+	// 		$xmlRow .= "<td colspan='6'>";
+	// 		$xmlRow .= "<ul>";
 						
 						
-						$query3 ="SELECT * FROM ventas
-						INNER JOIN detalles_ventas ON ventas.id_venta = detalles_ventas.id_venta
-						INNER JOIN productos ON detalles_ventas.id_producto = productos.id_producto
-						INNER JOIN tallas ON productos.id_talla = tallas.id_talla
-						WHERE ventas.id_venta = $id_venta";
-						$detalles_ventas = DatasetSQL($query3);
+	// 					$query3 ="SELECT * FROM ventas
+	// 					INNER JOIN detalles_ventas ON ventas.id_venta = detalles_ventas.id_venta
+	// 					INNER JOIN productos ON detalles_ventas.id_producto = productos.id_producto
+	// 					INNER JOIN tallas ON productos.id_talla = tallas.id_talla
+	// 					WHERE ventas.id_venta = $id_venta";
+	// 					$detalles_ventas = DatasetSQL($query3);
 		
-						while($row3 = mysqli_fetch_array($detalles_ventas)){
-							$nombre_producto = $row3['nombre_producto'];
-							$talla = $row3['talla'];
-							$cantidad = $row3['cantidad'];
-							$precio_unitario = $row3['precio_unitario'];
-							$subtotal = $row3['subtotal'];
+	// 					while($row3 = mysqli_fetch_array($detalles_ventas)){
+	// 						$nombre_producto = $row3['nombre_producto'];
+	// 						$talla = $row3['talla'];
+	// 						$cantidad = $row3['cantidad'];
+	// 						$precio_unitario = $row3['precio_unitario'];
+	// 						$subtotal = $row3['subtotal'];
 		
-							$xmlRow .= "<li><strong>Producto: </strong>$nombre_producto</li>";
-							$xmlRow .=  "<strong>Talla: </strong>$talla<br>";
-							$xmlRow .=  "<strong>Cantidad: </strong>$cantidad<br>";
-							$xmlRow .=  "<strong>Precio Unitario: </strong>$".number_format($precio_unitario, 2)."<br>";
-							$xmlRow .=  "<strong>Subtotal: </strong>$".number_format($subtotal, 2)."<br>";
-							$xmlRow .=  "<br>";
-						}
+	// 						$xmlRow .= "<li><strong>Producto: </strong>$nombre_producto</li>";
+	// 						$xmlRow .=  "<strong>Talla: </strong>$talla<br>";
+	// 						$xmlRow .=  "<strong>Cantidad: </strong>$cantidad<br>";
+	// 						$xmlRow .=  "<strong>Precio Unitario: </strong>$".number_format($precio_unitario, 2)."<br>";
+	// 						$xmlRow .=  "<strong>Subtotal: </strong>$".number_format($subtotal, 2)."<br>";
+	// 						$xmlRow .=  "<br>";
+	// 					}
 						
-					$xmlRow .=  "</ul>";
-				$xmlRow .=  "</td>";
-			$xmlRow .=  "</tr>";
+	// 				$xmlRow .=  "</ul>";
+	// 			$xmlRow .=  "</td>";
+	// 		$xmlRow .=  "</tr>";
 
 		
-		}
-	}
+	// 	}
+	// }
 
-	$total_vendido = number_format($total_vendido, 2);
+	// $total_vendido = number_format($total_vendido, 2);
 
 
 	$result = array( 
-		'total_vendido'			=> $total_vendido,
+		// 'total_vendido'			=> $total_vendido,
 		'tabla_ventas' 			=> $xmlRow, 
 		'result' 				=> $resultStatus, 
-		'result_text' 			=> $resultText
+		'result_text' 			=> $resultText,
+		'select_ventas'			=> $select_ventas,
 	);		
 	XML_Envelope($result);     
 	exit;		
@@ -761,8 +770,6 @@ if(Requesting("action") == "llenar_select_tallas"){
     XML_Envelope($result);     
     exit;   
 }
-
-
 
 
 if(Requesting("action") == "crear_venta"){
@@ -1092,6 +1099,605 @@ if(Requesting("action") == "terminar_venta"){
 
 
 
+
+
+
+
+
+		// AQUI INICIAN LAS FUNCIONES PARA COMPRAS
+
+		if(Requesting("action")=="llenar_tabla_compras"){
+			$select_compras = Requesting("select_compras");
+		
+			$resultStatus = "ok"; 
+			$resultText = "Correcto.";
+		
+			$xmlRow = "";
+		
+			if($select_compras != 1){
+				$primer_dia_mes = date('Y-m-01', strtotime($select_compras));
+					$ultimo_dia_mes = date('Y-m-t', strtotime($select_compras));
+			}
+		
+			if($select_compras == 1){
+				$query1 = "SELECT COUNT(*) AS existe FROM compras 
+				INNER JOIN proveedores ON compras.id_proveedor = proveedores.id_proveedor
+				INNER JOIN empleados ON compras.id_empleado = empleados.id_empleado";
+			} else{
+				$query1 = "SELECT COUNT(*) AS existe FROM compras 
+				INNER JOIN proveedores ON compras.id_proveedor = proveedores.id_proveedor
+				INNER JOIN empleados ON compras.id_empleado = empleados.id_empleado
+				WHERE compras.fecha BETWEEN '$primer_dia_mes' AND '$ultimo_dia_mes'";
+				
+				
+				// echo $query1;
+			}
+			
+			// // echo $query1;
+			// $existe = GetValueSQL($query1, 'existe');
+		
+			// $total_comprado = 0;
+			
+			// if($existe > 0){
+		
+			// 	if($select_compras == 1){
+			// 		$query4 = "SELECT SUM(compras.total_compra) AS total_comprado FROM compras";
+			// 		$total_comprado = GetValueSQL($query4, 'total_comprado');
+		
+			// 		$query2 = "SELECT * FROM compras 
+			// 		INNER JOIN proveedor ON compras.id_proveedor = proveedor.id_proveedor
+			// 		INNER JOIN empleados ON compras.id_empleado = empleados.id_empleado
+			// 		ORDER BY fecha DESC";
+					
+			// 	} else{
+			// 		$query4 = "SELECT SUM(compras.total_compra) AS total_comprado FROM compras
+			// 		WHERE compras.fecha BETWEEN '$primer_dia_mes' AND '$ultimo_dia_mes'";
+			// 		$total_comprado = GetValueSQL($query4, 'total_comprado');
+			// 		// echo $query4;
+		
+					
+			// 		$query2 = "SELECT * FROM compras 
+			// 		INNER JOIN proveedor ON compras.id_proveedor = proveedor.id_proveedor
+			// 		INNER JOIN empleados ON compras.id_empleado = empleados.id_empleado
+			// 		WHERE compras.fecha BETWEEN '$primer_dia_mes' AND '$ultimo_dia_mes'
+			// 		ORDER BY fecha DESC";
+			// 		// echo $query2;
+			// 	}
+				
+			// 	// echo $query2;
+			// 	$result2 = DatasetSQL($query2);
+		
+			// 	while($row2 = mysqli_fetch_array($result2)){
+			// 		$id_compra = $row2['id_compra'];
+			// 		$nombre_proveedor = $row2['nombre_proveedor'];
+			// 		$nombre_empleado = $row2['nombre_empleado'];
+			// 		$fecha = $row2['fecha'];
+			// 		$total_compra = $row2['total_compra'];
+		
+			// 		$xmlRow .=  "<tr>";
+			// 		$xmlRow .=  "<td>$id_compra</td>";
+			// 		$xmlRow .=  "<td>$nombre_proveedor</td>";
+			// 		$xmlRow .=  "<td>$nombre_empleado</td>";
+			// 		$xmlRow .=  "<td>$fecha</td>";
+			// 		$xmlRow .=  "<td>$".number_format($total_compra, 2)."</td>";
+			// 		$xmlRow .=  "<td><a type='button' href='' onclick='ver_detalles_compra(".$id_compra.", event)'>Ver detalles</a></td>";
+			// 		$xmlRow .=  "</tr>";
+					
+					
+			// 		$xmlRow .= "<tr class='detalles_compra' id='detalles_compra_tabla_$id_compra;'>";
+			// 		$xmlRow .= "<td colspan='6'>";
+			// 		$xmlRow .= "<ul>";
+								
+								
+			// 					$query3 ="SELECT * FROM compras
+			// 					INNER JOIN detalles_compras ON compras.id_compra = detalles_compras.id_compra
+			// 					INNER JOIN productos ON detalles_compras.id_producto = productos.id_producto
+			// 					INNER JOIN tallas ON productos.id_talla = tallas.id_talla
+			// 					WHERE compras.id_compra = $id_compra";
+			// 					$detalles_compras = DatasetSQL($query3);
+				
+			// 					while($row3 = mysqli_fetch_array($detalles_compras)){
+			// 						$nombre_producto = $row3['nombre_producto'];
+			// 						$talla = $row3['talla'];
+			// 						$cantidad = $row3['cantidad'];
+			// 						$precio_unitario = $row3['precio_unitario'];
+			// 						$subtotal = $row3['subtotal'];
+				
+			// 						$xmlRow .= "<li><strong>Producto: </strong>$nombre_producto</li>";
+			// 						$xmlRow .=  "<strong>Talla: </strong>$talla<br>";
+			// 						$xmlRow .=  "<strong>Cantidad: </strong>$cantidad<br>";
+			// 						$xmlRow .=  "<strong>Precio Unitario: </strong>$".number_format($precio_unitario, 2)."<br>";
+			// 						$xmlRow .=  "<strong>Subtotal: </strong>$".number_format($subtotal, 2)."<br>";
+			// 						$xmlRow .=  "<br>";
+			// 					}
+								
+			// 				$xmlRow .=  "</ul>";
+			// 			$xmlRow .=  "</td>";
+			// 		$xmlRow .=  "</tr>";
+		
+				
+			// 	}
+			// }
+		
+			// $total_compra = number_format($total_compra, 2);
+		
+		
+			$result = array( 
+				// 'total_compra'			=> $total_compra,
+				'tabla_compras' 			=> $xmlRow, 
+				'result' 				=> $resultStatus, 
+				'result_text' 			=> $resultText,
+				'select_compras'		=> $select_compras,
+			);		
+			XML_Envelope($result);     
+			exit;		
+		}
+		
+		if(Requesting("action") == "llenar_select_proveedores"){
+			$resultStatus = "ok";
+			$resultText = "Correcto.";
+		
+			$xmlRow = '<option value="0">Selecciona un proveedor...</option>';
+		
+			$query1 = "SELECT COUNT(*) AS cuantos FROM proveedores WHERE status = 1";
+			$cuantos_proveedores = GetValueSQL($query1, 'cuantos');
+		
+			if($cuantos_proveedores > 0){
+				$query2 = "SELECT * FROM proveedores WHERE status = 1";
+				$proveedores = DatasetSQL($query2);
+		
+				while($row2 = mysqli_fetch_array($proveedores)){
+					$id_proveedor = $row2['id_proveedor'];
+					$nombre_proveedor = $row2['nombre_proveedor'];
+					$xmlRow .=  "<option value='$id_proveedor'>$nombre_proveedor</option>";
+				}
+			}
+		
+		
+		
+			$result = array( 
+				'select_proveedores'		=> $xmlRow, 
+				'result' 				=> $resultStatus, 
+				'result_text' 			=> $resultText
+			);		
+			XML_Envelope($result);     
+			exit;	
+		}
+		
+		if(Requesting("action") == "llenar_select_empleados"){
+			$resultStatus = "ok";
+			$resultText = "Correcto.";
+		
+			$xmlRow = '<option value="0">Selecciona un empleado...</option>';
+		
+			$query1 = "SELECT COUNT(*) AS cuantos FROM empleados WHERE status = 1";
+			$cuantos = GetValueSQL($query1, 'cuantos');
+		
+			if($cuantos > 0){
+				$query2 = "SELECT * FROM empleados WHERE status = 1";
+				$clientes = DatasetSQL($query2);
+		
+				while($row2 = mysqli_fetch_array($clientes)){
+					$id_empleado = $row2['id_empleado'];
+					$nombre_empleado = $row2['nombre_empleado'];
+					$xmlRow .=  "<option value='$id_empleado'>$nombre_empleado</option>";
+				}
+			}
+		
+		
+		
+			$result = array( 
+				'select_empleados'		=> $xmlRow, 
+				'result' 				=> $resultStatus, 
+				'result_text' 			=> $resultText
+			);		
+			XML_Envelope($result);     
+			exit;	
+		}
+		
+		
+		
+		if(Requesting("action") == "llenar_select_productos"){
+			$resultStatus = "ok";
+			$resultText = "Correcto.";
+		
+			$xmlRow = '<option value="0">Selecciona un producto...</option>';
+		
+			$query1 = "SELECT COUNT(*) AS cuantos FROM productos WHERE status = 1";
+			$cuantos = GetValueSQL($query1, 'cuantos');
+		
+			if($cuantos > 0){
+				$query2 = "SELECT * FROM productos WHERE status = 1 ORDER BY id_producto";
+				$productos = DatasetSQL($query2);
+		
+				while($row2 = mysqli_fetch_array($productos)){
+					$id_producto = $row2['id_producto'];
+					$nombre_producto = $row2['nombre_producto'];
+					$xmlRow .=  "<option value='$id_producto'>$nombre_producto</option>";
+				}
+			}
+		
+		
+		
+			$result = array( 
+				'select_productos'		=> $xmlRow, 
+				'result' 				=> $resultStatus, 
+				'result_text' 			=> $resultText
+			);		
+			XML_Envelope($result);     
+			exit;	
+		}
+		
+		
+		
+		if(Requesting("action") == "llenar_select_tallas"){
+			$id_producto = Requesting("id_producto");
+		
+			$resultStatus = "ok";
+			$resultText = "Correcto.";
+		
+			$xmlRow = '<option value="0">Selecciona una talla...</option>';
+		
+			if($id_producto != 0){
+				$query1 = "SELECT COUNT(*) AS cuantos FROM producto_talla WHERE id_producto = $id_producto";
+				$cuantos = GetValueSQL($query1, 'cuantos');
+		
+				if($cuantos > 0){
+					$query2 = "SELECT producto_talla.*, tallas.talla, tallas.status FROM producto_talla
+					INNER JOIN tallas ON producto_talla.id_talla = tallas.id_talla
+					WHERE id_producto = $id_producto AND status = 1 ORDER BY id_talla";
+					$productos = DatasetSQL($query2);
+		
+					while($row2 = mysqli_fetch_array($productos)){
+						$id_producto_talla = $row2['id_producto_talla'];
+						$talla = $row2['talla'];
+						$xmlRow .=  "<option value='$id_producto_talla'>$talla</option>";
+					}
+				}
+		
+				$query3 = "SELECT precio FROM productos WHERE id_producto = $id_producto";
+				$precio_unitario = GetValueSQL($query3, 'precio');
+		
+				$precio_unitario = "$".number_format($precio_unitario, 2);
+			} else{
+				$precio_unitario = "$".number_format(0, 2);
+			}
+		
+			
+		
+			$result = array( 
+				'id_producto'			=> $id_producto,
+				'precio_unitario'		=> $precio_unitario,
+				'select_tallas'     	=> $xmlRow, 
+				'result'                => $resultStatus, 
+				'result_text'           => $resultText
+			);      
+			XML_Envelope($result);     
+			exit;   
+		}
+		
+		
+		if(Requesting("action") == "crear_compra"){
+			$resultStatus = "ok";
+			$resultText = "Correcto.";
+		
+			$id_proveedor = Requesting("id_proveedor");
+			$id_empleado = Requesting("id_empleado");
+			$fecha_hoy = date("Y-m-d");
+		
+			// echo "ID CLiente: ".$id_cliente;
+			// echo "ID Empleado: ".$id_empleado;
+			// echo "Fecha Hoy: ".$fecha_hoy;
+		
+			$query2 = "SELECT COUNT(*) AS existe FROM compras WHERE id_proveedor = $id_proveedor AND status_compra = 0";
+			$cuantos = GetValueSQL($query2, 'existe');
+		
+			if($cuantos == 0){
+				$query1 = "INSERT INTO compras (id_proveedor, id_empleado, fecha, total_compra, status_compra) VALUES ($id_proveedor, $id_empleado, '$fecha_hoy', 0, 0)";
+				$id_compra = ExecuteSQL_returnID($query1);
+		
+				if ($id_compra !== false) {
+					$resultStatus = "ok";
+					$resultText = "Se creó la compra. Agrega productos.";
+				} else {
+					$resultStatus = "error";
+					$resultText = "Error al crear la compra.";
+				}
+			} else{
+				$resultStatus = "warning";
+				$resultText = "Ya existe una compra abierta para este cliente.";
+				$query3 = "SELECT id_compra FROM compras WHERE id_proveedor = $id_proveedor AND status_compra = 0";
+				$id_compra = GetValueSQL($query3, 'id_compra');
+			}
+			
+			$result = array( 
+				'id_proveedor'			=> $id_proveedor,
+				'id_compra'				=> $id_compra,
+				'result' 				=> $resultStatus, 
+				'result_text' 			=> $resultText
+			);		
+			XML_Envelope($result);     
+			exit;	
+		}
+		
+		
+		if(Requesting("action") == "agregar_dc"){
+			$id_compra = Requesting("id_compra");
+			$id_producto = Requesting("id_producto");
+			$id_producto_talla = Requesting("id_producto_talla");
+			$cantidad = Requesting("cantidad");
+		
+			$query1 = "SELECT precio FROM productos WHERE id_producto = $id_producto";
+			$precio_unitario = GetValueSQL($query1, 'precio');
+		
+			$subtotal = floatval($precio_unitario) * floatval($cantidad);
+		
+			$resultStatus = "ok";
+			$resultText = "Correcto.";
+		
+			$query3 = "SELECT COUNT(*) AS existe FROM detalles_compras WHERE id_compra = $id_compra AND id_producto = $id_producto AND id_producto_talla = $id_producto_talla ";
+			$existe = GetValueSQL($query3, 'existe');
+		
+			if($existe > 0){
+		
+				$query4 = "UPDATE detalles_compras SET cantidad = cantidad + $cantidad, subtotal = subtotal + $subtotal WHERE id_compra = $id_compra AND id_producto_talla = $id_producto_talla ";
+				ExecuteSQL($query4);
+		
+			} else{
+		
+				$query2 = "INSERT INTO detalles_compras (id_compra, id_producto, id_producto_talla, cantidad, precio_unitario, subtotal)
+							VALUES ($id_compra, $id_producto, $id_producto_talla, $cantidad, $precio_unitario, $subtotal)";
+				if(ExecuteSQL($query2)){
+					$resultStatus = "ok";
+					$resultText = "Se agregó el producto a la compra.";
+				} else{
+					$resultStatus = "error";
+					$resultText = "Ocurrió un error. Inténtalo de nuevo. ";
+				}
+		
+			}
+		
+			
+			$result = array( 
+				'result' 				=> $resultStatus, 
+				'result_text' 			=> $resultText
+			);		
+			XML_Envelope($result);     
+			exit;	
+		}
+		
+		
+		if(Requesting("action") == "editar_dc"){
+			$id_detalle_compra = Requesting("id_detalle_compra");
+			$id_producto_talla = Requesting("id_producto_talla");
+			$cantidad = Requesting("cantidad");
+		
+			$resultStatus = "ok";
+			$resultText = "Correcto.";
+		
+		
+		
+			$query1 = "SELECT * FROM detalles_compras 
+			INNER JOIN productos ON detalles_compras.id_producto = productos.id_producto
+			WHERE id_detalle_compra = $id_detalle_compra";
+		
+			$precio = GetValueSQL($query1, 'precio');
+		
+			$subtotal = floatval($precio) * floatval($cantidad);
+		
+			$query2 = "UPDATE detalles_compras SET id_producto_talla = $id_producto_talla, cantidad = $cantidad, precio_unitario = $precio, subtotal = $subtotal WHERE id_detalle_compra = $id_detalle_compra";
+			if(ExecuteSQL($query2)){
+				$resultStatus = "ok";
+				$resultText = "Se editó correctamente. ";
+			} else{
+				$resultStatus = "error";
+				$resultText = "Ocurrió un error. Inténtalo de nuevo. ";
+			}
+		
+			
+			$result = array( 
+				'result' 				=> $resultStatus, 
+				'result_text' 			=> $resultText
+			);		
+			XML_Envelope($result);     
+			exit;	
+		}
+		
+		
+		
+		if(Requesting("action") == "eliminar_dc"){
+			$id_detalle_compra = Requesting("id_detalle_compra");
+		
+			$resultStatus = "ok";
+			$resultText = "Correcto.";
+		
+			$query1 = "DELETE FROM detalles_compras WHERE id_detalle_compra = $id_detalle_compra";
+			if(ExecuteSQL($query1)){
+				$resultStatus = "ok";
+				$resultText = "Se eliminó correctamente. ";
+			} else{
+				$resultStatus = "error";
+				$resultText = "Ocurrió un error. Inténtalo de nuevo. ";
+			}
+		
+		
+			
+			$result = array( 
+				'result' 				=> $resultStatus, 
+				'result_text' 			=> $resultText
+			);		
+			XML_Envelope($result);     
+			exit;	
+		}
+		
+		
+		if(Requesting("action") == "llenar_tabla_dc"){
+			$id_compra = Requesting("id_compra");
+		
+			// echo "ID Venta: ".$id_compra;
+		
+			$resultStatus = "ok";
+			$resultText = "Correcto.";
+			$xmlRow = "";	
+		
+			$query1 = "SELECT COUNT(*) AS cuantos FROM detalles_compras WHERE id_compra = $id_compra";
+			$cuantos = GetValueSQL($query1, 'cuantos');
+			if($cuantos > 0){
+		
+				$query2 = "SELECT * FROM detalles_compras
+				INNER JOIN productos ON detalles_compras.id_producto = productos.id_producto
+				INNER JOIN producto_talla ON detalles_compras.id_producto_talla = producto_talla.id_producto_talla
+				INNER JOIN tallas ON producto_talla.id_talla = tallas.id_talla
+				WHERE id_compra = $id_compra";
+				// echo $query2;
+				$detalle_compra = DatasetSQL($query2);
+		
+				while($row2 = mysqli_fetch_array($detalle_compra)){
+					$id_detalle_compra = $row2['id_detalle_compra'];
+					$nombre_producto = $row2['nombre_producto'];
+					$talla = $row2['talla'];
+					$cantidad = $row2['cantidad'];
+					$precio_unitario = $row2['precio_unitario'];
+					$subtotal = $row2['subtotal'];
+		
+					$xmlRow .=  "<tr>
+									<td>$nombre_producto</td>
+									<td>$talla</td>
+									<td>$cantidad</td>
+									<td>$".number_format($precio_unitario, 2)."</td>
+									<td>$".number_format($subtotal, 2)."</td>
+									<td>
+										<a type='button' data-bs-toggle='modal' data-bs-target='#modalEditarDC' data-id='$id_detalle_compra' onclick='llenar_form_dc($id_detalle_compra)'><i class='fas fa-pen fa-lg'></i></a> &nbsp;
+										<a type='button' onclick='eliminar_dc($id_detalle_compra)'><i class='fas fa-trash text-danger fa-lg'></i></a> 
+									</td>
+								</tr>";
+					
+				}
+				$query3 = "SELECT total_compra FROM compras WHERE id_compra = $id_compra";
+				$total_compra = GetValueSQL($query3, 'total_compra');
+				$total_compra = "$".number_format($total_compra, 2);
+				$xmlRow .= "<tr>
+								<td colspan='6'><strong>Subtotal: </strong>".$total_compra."</td>
+							</tr>";
+			}
+		
+		
+		
+		
+		
+			$result = array( 
+				'table_detalle_compra' 	=> $xmlRow, 
+				'result' 				=> $resultStatus, 
+				'result_text' 			=> $resultText
+			);		
+			XML_Envelope($result);     
+			exit;	
+		}
+		
+		
+		
+		if(Requesting("action") == "llenar_form_dc"){
+			$id_detalle_compra = Requesting("id_detalle_compra");
+		
+			$resultStatus = "ok";
+			$resultText = "Correcto.";
+		
+			$xmlRow = '';
+		
+		
+			$query1 = "SELECT * FROM detalles_compras
+			INNER JOIN productos on productos.id_producto = detalles_compras.id_producto
+			WHERE id_detalle_compra = $id_detalle_compra";
+		
+		
+			$cantidad = GetValueSQL($query1, 'cantidad');
+			$nombre_producto = GetValueSQL($query1, 'nombre_producto');
+			$precio = GetValueSQL($query1, 'precio');
+			$id_producto = GetValueSQL($query1, 'id_producto');
+			$id_producto_talla = GetValueSQL($query1, 'id_producto_talla');
+		
+			$precio = "$".number_format($precio, 2);
+		
+			$query2 = "SELECT * FROM producto_talla
+			INNER JOIN tallas on producto_talla.id_talla = tallas.id_talla
+			WHERE id_producto = $id_producto";
+			$tallas = DatasetSQL($query2);
+		
+			while($row2 = mysqli_fetch_array($tallas)){
+				if($id_producto_talla == $row2['id_producto_talla']){
+					$xmlRow .= "<option selected='selected' value='".$row2['id_producto_talla']."'>".$row2['talla']."</option>";
+				} else{
+					$xmlRow .= "<option value='".$row2['id_producto_talla']."'>".$row2['talla']."</option>";
+				}
+			}
+		
+		
+		
+			
+			$result = array( 
+				'cantidad'				=> $cantidad,
+				'select_tallas'			=> $xmlRow,
+				'nombre_producto'		=> $nombre_producto,
+				'precio'				=> $precio,
+				'result' 				=> $resultStatus, 
+				'result_text' 			=> $resultText
+			);		
+			XML_Envelope($result);     
+			exit;	
+		}
+		
+		
+		
+		if(Requesting("action") == "terminar_compra"){
+			$id_compra = Requesting("id_compra");
+		
+			$resultStatus = "ok";
+			$resultText = "Correcto.";
+		
+			$query3 = "SELECT id_proveedor FROM compras WHERE id_compra = $id_compra";
+			$id_proveedor = GetValueSQL($query3, 'id_proveedor');
+		
+			$query1 = "SELECT COUNT(*) AS cuantos FROM detalles_compras WHERE id_compra = $id_compra";
+			$cuantos = GetValueSQL($query1, 'cuantos');
+		
+			if($cuantos > 0){
+				$query2 = "UPDATE compras SET status_compra = 1 WHERE id_compra = $id_compra";
+				
+				if(ExecuteSQL($query2)){
+					$resultStatus = "ok";
+					$resultText = "Compra procesada. ";
+				} else{
+					$resultStatus = "error";
+					$resultText = "Ocurrió un error. Inténtalo de nuevo. ";
+				}
+		
+		
+				//Restar stock a productos
+				$query3 = "SELECT * FROM detalles_compras WHERE id_compra = $id_compra";
+				$detalles_compras = DatasetSQL($query3);
+		
+				while($row3 = mysqli_fetch_array($detalles_compras)){
+					$id_producto = $row3['id_producto'];
+					$cantidad = $row3['cantidad'];
+		
+					$query4 = "UPDATE productos SET stock = stock + $cantidad WHERE id_producto = $id_producto";
+					ExecuteSQL($query4);
+				}
+		
+			} else{
+				$resultStatus = "error";
+				$resultText = "Agrega productos para comprar";
+			}
+		
+		
+			$result = array( 
+				'id_proveedor'			=> $id_proveedor,
+				'result' 				=> $resultStatus, 
+				'result_text' 			=> $resultText
+			);		
+			XML_Envelope($result);     
+			exit;	
+		}
 
 
 

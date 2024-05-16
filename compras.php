@@ -37,7 +37,7 @@ ob_start();
         <h1>Punto de Venta de Tenis</h1>
         <h2>&nbspCompras</h2>
         <div class="container">
-            <a class="btn btn-success text-white" href="nueva-venta">Nueva venta</a>
+            <a class="btn btn-success text-white" href="nueva-compra">Nueva compra</a>
             <div class="row justify-content-center">
                 <div class="col-8">
                     <table class="table table-striped">
@@ -65,12 +65,12 @@ ob_start();
                             // echo $query1;
                             $existe = GetValueSQL($query1, 'existe');
 
-                            $total_vendido = 0;
+                            $total_comprado = 0;
                             
                             if($existe > 0){
 
-                                $query4 = "SELECT SUM(compras.total_compra) AS total_vendido FROM compras";
-                                $total_vendido = GetValueSQL($query4, 'total_vendido');
+                                $query4 = "SELECT SUM(compras.total_compra) AS total_comprado FROM compras";
+                                $total_comprado = GetValueSQL($query4, 'total_comprado');
 
                                 $query_vista = "CREATE VIEW compras AS
                                 SELECT cmp.*, prove.nombre_proveedor, prove.direccion, prove.telefono, prove.cantidadReestock, empl.nombre_empleado
@@ -160,11 +160,11 @@ ob_start();
                         #region Total y ordenamiento
                     ======================================-->
 
-                    <h5 id="total_vendido">Total vendido: $<?php echo number_format($total_vendido, 2) ?></h5>
+                <h5 id="total_comprado">Total vendido: $<?php echo number_format($total_comprado, 2) ?></h5>
                 </div>
                 <div class="col-4">
                     <h4 class="text">Ordenar por:</h4>
-                    <select id="select_compras" class="select" onchange="llenar_tabla_ventas()">
+                    <select id="select_compras" class="select" onchange="llenar_tabla_compras()">
                             <option value="1">Todos los tiempos</option>
                             <?php
                             // Obtener la fecha actual

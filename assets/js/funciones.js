@@ -530,7 +530,6 @@ function end_llenar_form_tabla(xml){
 
 //#region ventas.php
 
-
 function ver_detalles_venta(id_venta, e){
 	e.preventDefault();
 
@@ -546,7 +545,7 @@ function ver_detalles_venta(id_venta, e){
 }
 
 
-function ver_descripcion_producto(id_producto, e){
+function ver_descripcion_producto_venta(id_producto, e){
 	e.preventDefault();
 
     // console.log(id_producto);
@@ -560,7 +559,7 @@ function ver_descripcion_producto(id_producto, e){
 
 function llenar_tabla_ventas(){
 	var select_ventas = $("#select_ventas").val();
-
+	console.log(select_ventas);
 
 	$.post("controller.php",
 	{ 			action 					: "llenar_tabla_ventas",
@@ -570,11 +569,17 @@ function llenar_tabla_ventas(){
 
 function end_llenar_tabla_ventas(xml){
     $(xml).find("response").each(function(){
+		if($(this).find("select_ventas").text() == 1)
+			{
+				location.reload();
+			}
+			
         if($(this).find("result").text() == "ok"){
             $("#tabla_ventas").html($(this).find("tabla_ventas").text());
 
 			$("#total_vendido").html("Total vendido: $" +$(this).find("total_vendido").text());
-
+			console.log($(this).find("select_ventas").text());
+			
         }
     });
 }
@@ -658,7 +663,7 @@ function end_llenar_select_tallas(xml){
     });
 }
 
-
+//#region crear venta
 function crear_venta(){
 	var id_cliente = $("#select_clientes").val();
 	var id_empleado = $("#select_empleados").val();
@@ -737,7 +742,7 @@ function end_crear_venta(xml){
     });
 }
 
-
+//#region agregar venta por boton
 function agregar_dv(){
 	var id_venta = $("#id_venta").val();
 	var id_producto = $("#select_producto").val();
@@ -852,6 +857,7 @@ function end_agregar_dv(xml){
 	});
 }
 
+//#region editar venta por boton
 function editar_dv(){
 	var id_detalle_venta = $("#editar_id_dv").val();
 	var id_producto_talla = $("#editar_select_talla").val();
@@ -932,6 +938,8 @@ function end_editar_dv(xml){
 	});
 }
 
+
+//#region eliminar venta
 function eliminar_dv(id_detalle_venta){
 
 	$.post("controller.php",
@@ -970,6 +978,8 @@ function end_eliminar_dv(xml){
 	});
 }
 
+
+//#region llenar venta
 
 function llenar_tabla_dv(){
 	var id_venta = $("#id_venta").val();
@@ -1013,7 +1023,8 @@ function end_llenar_form_dv(xml){
 	});
 }
 
-
+ 
+//#region Terminar VENTA
 function terminar_venta(){
 	var id_venta = $("#id_venta").val();
 
@@ -1052,8 +1063,8 @@ function end_terminar_venta(xml){
 }
 
 
+
 // #region compras-php
-//A partir de aqui pa abajooooooooooooooooooooooo
 
 function ver_detalles_compra(id_compra, e){
 	e.preventDefault();
@@ -1066,7 +1077,513 @@ function ver_detalles_compra(id_compra, e){
 
 	//Falta hacer que se abra los detalles de la venta, sólo en el llenar_tabla del controller
 
+}
 
+function ver_descripcion_producto(id_producto, e){
+	e.preventDefault();
+
+    // console.log(id_producto);
+    
+
+    $("#descripcion_producto_"+id_producto).toggle('fast');
+
+    //Falta hacer que se abra los detalles de la venta, sólo en el llenar_tabla del controller
+}
+
+
+function llenar_tabla_compras(){
+	var select_compras = $("#select_compras").val();
+	console.log ("holaaa");
+
+	$.post("controller.php",
+	{ 	
+		action 			: "llenar_tabla_compras",
+		select_compras 	: select_compras,
+	}, end_llenar_tabla_compras);
+}
+
+function end_llenar_tabla_compras(xml){
+    $(xml).find("response").each(function(){
+		if($(this).find("select_compras").text() == 1)
+			{
+				location.reload();
+			}
+
+        if($(this).find("result").text() == "ok"){
+            $("#tabla_compras").html($(this).find("tabla_compras").text());
+
+			$("#total_comprado").html("Total comprado: $" +$(this).find("total_comprado").text());
+
+        }
+    });
+}
+
+
+//#region nueva-compra.php
+
+function llenar_select_proveedores(){
+	console.log("HOLAAA");
+	$.post("controller.php",
+	{ 	
+		action 		: "llenar_select_proveedores",
+	}, end_llenar_select_proveedores);
+}
+
+function end_llenar_select_proveedores(xml){
+	$(xml).find("response").each(function(){
+        if($(this).find("result").text() == "ok"){
+            $("#select_proveedores").html($(this).find("select_proveedores").text());
+        }
+    });
+}
+
+
+function llenar_select_empleados(){
+	$.post("controller.php",
+	{ 	
+		action 		: "llenar_select_empleados",
+	}, end_llenar_select_empleados);
+}
+
+function end_llenar_select_empleados(xml){
+	$(xml).find("response").each(function(){
+        if($(this).find("result").text() == "ok"){
+            $("#select_empleados").html($(this).find("select_empleados").text());
+        }
+    });
+}
+
+function llenar_select_productos(){
+	$.post("controller.php",
+	{ 	
+		action 		: "llenar_select_productos",
+	}, end_llenar_select_productos);
+}
+
+function end_llenar_select_productos(xml){
+	$(xml).find("response").each(function(){
+        if($(this).find("result").text() == "ok"){
+            $("#select_producto").html($(this).find("select_productos").text());
+        }
+    });
+}
+
+
+function llenar_select_tallas(){
+	var id_producto = $("#select_producto").val();
+
+	// console.log("ID Producto: " + id_producto);
+
+	$.post("controller.php",
+	{ 	
+		action 		: "llenar_select_tallas",
+		id_producto : id_producto,
+	}, end_llenar_select_tallas);
+}
+
+function end_llenar_select_tallas(xml){
+	$(xml).find("response").each(function(){
+        if($(this).find("result").text() == "ok"){
+            $("#select_talla").html($(this).find("select_tallas").text());
+			// console.log("ID Producto: "+ $(this).find("id_producto").text());
+
+			if($(this).find("id_producto").text() == null){
+				$("#dv_precio_unitario").val('');
+				$("#dc_precio_unitario").val('');
+			} else{
+				$("#dv_precio_unitario").val($(this).find("precio_unitario").text());
+				$("#dc_precio_unitario").val($(this).find("precio_unitario").text());
+			}
+        }
+    });
+}
+
+//#region crear compra
+function crear_compra(){
+	var id_proveedor = $("#select_proveedores").val();
+	var id_empleado = $("#select_empleados").val();
+
+	var continua = 1;
+
+	if(id_proveedor == 0){
+		continua = 0;
+
+		Swal.fire({
+            icon: 'error',
+            title: '¡Error!',
+            text: "Selecciona un proveedor.",
+            timer: 1000,
+            timerProgressBar: true,
+        })
+		return;
+	}
+
+	if(id_empleado == 0){
+		continua = 0;
+
+		Swal.fire({
+            icon: 'error',
+            title: '¡Error!',
+            text: "Selecciona un empleado.",
+            timer: 1000,
+            timerProgressBar: true,
+        })
+
+		return;
+	}
+	
+	
+
+
+	if(continua == 1){
+		$("#div_detalles_producto").show('slow');
+
+		$.post("controller.php",
+		{ 	
+			action 			: "crear_compra",
+			id_proveedor    : id_proveedor,
+			id_empleado 	: id_empleado,
+		}, end_crear_compra);
+	}
+	
+}
+
+function end_crear_compra(xml){
+	$(xml).find("response").each(function(){
+        if($(this).find("result").text() == "ok"){
+            $("#id_compra").val($(this).find("id_compra").text());
+			$("#id_proveedor").val($(this).find("id_proveedor").text());
+
+			Swal.fire({
+				icon: 'success',
+				title: 'Correcto!',
+				text: $(this).find("result_text").text(),
+				timer: 1000,
+				timerProgressBar: true,
+			})
+        } else{
+            $("#id_compra").val($(this).find("id_compra").text());
+			$("#id_proveedor").val($(this).find("id_proveedor").text());
+
+			Swal.fire({
+				icon: $(this).find("result").text(),
+				title: '¡Ojo!',
+				text: $(this).find("result_text").text(),
+				timer: 1000,
+				timerProgressBar: true,
+			})
+		}
+		llenar_tabla_dc();
+    });
+}
+
+//#region agregar compra por boton
+function agregar_dc(){
+	var id_compra = $("#id_compra").val();
+	console.log (id_compra);
+	var id_producto = $("#select_producto").val();
+	var id_producto_talla = $("#select_talla").val();
+	var cantidad = $("#dc_cantidad").val();
+
+	continua = 1;
+
+	// Verificar campos vacíos
+	$("#form_agregar_dc .obligatorio").each(function (index) {
+		if ($(this).val() == "") {
+			continua = 0;
+			Swal.fire({
+				icon: 'error',
+				title: '¡Error!',
+				text: "Llena todos los campos obligatorios.",
+				timer: 1000,
+				timerProgressBar: true,
+			})
+			return;
+		} 
+	});
+
+	if(id_producto == 0){
+		continua = 0;
+		Swal.fire({
+			icon: 'error',
+			title: '¡Error!',
+			text: "Selecciona un producto.",
+			timer: 1000,
+			timerProgressBar: true,
+		})
+		return;
+	}
+
+	if(id_producto_talla == 0){
+		continua = 0;
+        Swal.fire({
+            icon: 'error',
+            title: '¡Error!',
+            text: "Selecciona una talla.",
+            timer: 1000,
+            timerProgressBar: true,
+        })
+        return;
+	}
+
+	if(cantidad < 1){
+		continua = 0;
+		Swal.fire({
+            icon: 'error',
+            title: '¡Error!',
+            text: "Selecciona una cantidad válida.",
+            timer: 1000,
+            timerProgressBar: true,
+        })
+        return;
+	}
+
+	if(continua == 1){
+		$.post("controller.php",
+		{ 	
+			action 				: "agregar_dc",
+			id_compra 			: id_compra,
+			id_producto			: id_producto,
+			id_producto_talla 	: id_producto_talla,
+			cantidad 			: cantidad,
+		}, end_agregar_dc);
+	}
+}
+
+function end_agregar_dc(xml){
+
+	$(xml).find("response").each(function(i){		 
+		if($(this).find("result").text()=="ok"){ 
+			$('#modalNuevaDC').modal('hide');
+			$("#table_detalle_compra").load(location.href + " #table_detalle_compra");
+
+			llenar_tabla_dc();
+
+			$("#form_agregar_dc")[0].reset(); //Limpiar formulario
+			
+			Swal.fire({
+				icon: 'success',
+				title: '¡Correcto!',
+				text: $(this).find("result_text").text(),
+				timer: 1000,
+				timerProgressBar: true,
+			})
+		}else{
+			$('#modalNuevaDC').modal('hide');
+			Swal.fire({
+				icon: 'error',
+				title: '¡Error!',
+				text: $(this).find("result_text").text(),
+				timer: 1000,
+				timerProgressBar: true,
+			})
+		}
+	});
+}
+
+//#region editar compra por boton
+function editar_dc(){
+	var id_detalle_compra = $("#editar_id_dc").val();
+	var id_producto_talla = $("#editar_select_talla").val();
+	var cantidad = $("#editar_dc_cantidad").val();
+
+	var continua = 1;
+
+
+	//Verificar campos vacíos
+	$("#form_editar_dc .obligatorio").each(function (index) {
+		if ($(this).val() == "") {
+			continua = 0;
+			Swal.fire({
+				icon: 'error',
+				title: '¡Error!',
+				text: "Llena todos los campos obligatorios.",
+				timer: 1000,
+				timerProgressBar: true,
+			})
+			return;
+		} 
+	});
+
+
+	if(cantidad < 1){
+		continua = 0;
+		Swal.fire({
+            icon: 'error',
+            title: '¡Error!',
+            text: "Selecciona una cantidad válida.",
+            timer: 1000,
+            timerProgressBar: true,
+        })
+        return;
+	}
+
+	if(continua == 1){
+		$.post("controller.php",
+		{ 	
+			action 				: "editar_dc",
+			id_detalle_compra	: id_detalle_compra,
+			id_producto_talla 	: id_producto_talla,
+			cantidad 			: cantidad,
+		}, end_editar_dc);
+	}
+}
+
+function end_editar_dc(xml){
+	$(xml).find("response").each(function(i){		 
+		if($(this).find("result").text()=="ok"){ 
+			$('#modalEditarDC').modal('hide');
+			$("#table_detalle_compra").load(location.href + " #table_detalle_compra");
+
+			llenar_tabla_dc();
+			
+			Swal.fire({
+				icon: 'success',
+				title: '¡Correcto!',
+				text: $(this).find("result_text").text(),
+				timer: 1000,
+				timerProgressBar: true,
+			})
+
+			// setTimeout(function() {
+			// 	location.reload();
+			// }, 1000);
+			
+		}else{
+			$('#modalEditarDC').modal('hide');
+			Swal.fire({
+				icon: 'error',
+				title: '¡Error!',
+				text: $(this).find("result_text").text(),
+				timer: 1000,
+				timerProgressBar: true,
+			})
+		}
+	});
+}
+
+//#region eliminar compra
+function eliminar_dc(id_detalle_compra){
+
+	$.post("controller.php",
+		{ 	
+			action 				: "eliminar_dc",
+			id_detalle_compra 	: id_detalle_compra,
+		}, end_eliminar_dc);
+}
+
+function end_eliminar_dc(xml){
+	
+	$(xml).find("response").each(function(i){		 
+		if($(this).find("result").text()=="ok"){ 
+
+			$("#table_detalle_compra").load(location.href + " #table_detalle_compra");
+
+			llenar_tabla_dc();
+			
+			Swal.fire({
+				icon: 'success',
+				title: '¡Correcto!',
+				text: $(this).find("result_text").text(),
+				timer: 1000,
+				timerProgressBar: true,
+			})
+			
+		}else{
+			Swal.fire({
+				icon: 'error',
+				title: '¡Error!',
+				text: $(this).find("result_text").text(),
+				timer: 1000,
+				timerProgressBar: true,
+			})
+		}
+	});
+}
+
+//#region llenar compra
+
+function llenar_tabla_dc(){
+	var id_compra = $("#id_compra").val();
+
+	// console.log("ID Venta: " + id_compra);
+
+	$.post("controller.php",
+		{ 	
+			action 				: "llenar_tabla_dc",
+			id_compra			: id_compra
+		}, end_llenar_tabla_dc);
+}
+
+function end_llenar_tabla_dc(xml){
+	$(xml).find("response").each(function(i){		 
+		if($(this).find("result").text()=="ok"){ 
+			$('#table_detalle_compra').html($(this).find("table_detalle_compra").text());
+		}
+	});
+	console.log($(this).find("table_detalle_compra").text());
+}
+
+
+
+function llenar_form_dc(id_detalle_compra){
+
+
+	$.post("controller.php",
+		{ 	
+			action 				: "llenar_form_dc",
+			id_detalle_compra			: id_detalle_compra
+		}, end_llenar_form_dc);
+}
+
+function end_llenar_form_dc(xml){
+	$(xml).find("response").each(function(i){		 
+		if($(this).find("result").text()=="ok"){ 
+			$("#editar_dc_producto").val($(this).find("nombre_producto").text());
+			$("#editar_select_talla").html($(this).find("select_tallas").text());
+			$("#editar_dc_cantidad").val($(this).find("cantidad").text());
+			$("#editar_dc_precio_unitario").val($(this).find("precio").text());
+		}
+	});
+}
+
+
+//#region terminar COMPRA
+function terminar_compra(){
+	var id_compra = $("#id_compra").val();
+
+	$.post("controller.php",
+		{ 	
+			action 					: "terminar_compra",
+			id_compra				: id_compra
+		}, end_terminar_compra);
+}
+
+
+function end_terminar_compra(xml){
+	$(xml).find("response").each(function(i){		 
+		if($(this).find("result").text()=="ok"){ 
+			Swal.fire({
+				icon: 'success',
+				title: '¡Correcto!',
+				text: $(this).find("result_text").text(),
+				timer: 1000,
+				timerProgressBar: true,
+			})
+
+
+			window.location.href = 'proveedor/'+$(this).find("id_proveedor").text();
+			
+		}else{
+			Swal.fire({
+				icon: 'error',
+				title: '¡Error!',
+				text: $(this).find("result_text").text(),
+				timer: 1000,
+				timerProgressBar: true,
+			})
+		}
+	});
 }
 
 

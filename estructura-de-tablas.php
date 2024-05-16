@@ -186,7 +186,6 @@ ob_start();
 
                 <div class="modal-body">
                     <form class="form" id="formAgregarCampo">
-                        <h4>Agregar Campo</h4>
                         <div class="form-group">
                             <label for="columna">Nombre de la Columna:</label>
                             <input type="text" name="columna" id="agregar_campo_columna" class="input-text" required>
@@ -203,9 +202,6 @@ ob_start();
                         <div class="form-group">
                             <label for="longitud">Longitud:</label>
                             <input type="number" name="longitud" class="longitud input-text" id="agregar_campo_longitud" disabled>
-                        </div>
-                        <div class="form-group">
-                            <button onclick="agregar_campo(event)" class="btn btn-success btn-submit">Guardar</button>
                         </div>
                     </form>
                 </div>
@@ -236,7 +232,6 @@ ob_start();
 
                 <div class="modal-body">
                     <form class="form" id="formEditarCampo">
-                        <h4>Modificar Campo</h4>
                         <div class="form-group">
                             <label for="columna">Nombre de la Columna:</label>
                             <input type="text" name="columna" id="columna" class="input-text" required>
@@ -257,9 +252,6 @@ ob_start();
                         <div class="form-group">
                             <label for="longitud">Longitud:</label>
                             <input type="number" name="longitud" class="longitud" class="input-text" disabled>
-                        </div>
-                        <div class="form-group">
-                            <button onclick="modificar_campo(event)" class="btn btn-danger btn-submit">Eliminar</button>
                         </div>
                         
                     </form>
@@ -295,7 +287,7 @@ ob_start();
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
                     <form id="formEliminar">
                         <!-- Pasar el nombre de la columna de identificación única como valor -->
-                        <input type="text" id="eliminar_nombre_campo" name="eliminar_nombre_campo">
+                        <input type="hidden" id="eliminar_nombre_campo" name="eliminar_nombre_campo">
                         <button type="button" class="btn btn-danger" onclick="eliminar_campo()">Eliminar</button>
                     </form>
                 </div>

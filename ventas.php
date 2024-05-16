@@ -37,7 +37,7 @@ ob_start();
         <h1>Punto de Venta de Tenis</h1>
         <h2>&nbspVentas</h2>
         <div class="container">
-            <a class="btn btn-success text-white" href="nueva-venta">Nueva compra</a>
+            <a class="btn btn-success text-white" href="nueva-venta">Nueva venta</a>
             <div class="row justify-content-center">
                 <div class="col-8">
                     <table class="table table-striped">
@@ -158,7 +158,7 @@ ob_start();
                         #region Total y ordenamiento
                     ======================================-->
 
-                    <h5 id="total_vendido">Total vendido: $<?php echo number_format($total_vendido, 2) ?></h5>
+                <h5 id="total_vendido">Total vendido: $<?php echo number_format($total_vendido, 2) ?></h5>
                 </div>
                 <div class="col-4">
                     <h4 class="text">Ordenar por:</h4>

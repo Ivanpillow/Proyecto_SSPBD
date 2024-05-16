@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 14-05-2024 a las 04:39:27
+-- Tiempo de generación: 16-05-2024 a las 07:24:55
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
@@ -49,6 +49,52 @@ INSERT INTO `clientes` (`id_cliente`, `nombre_cliente`, `email`, `password`, `di
 -- --------------------------------------------------------
 
 --
+-- Estructura de tabla para la tabla `compras`
+--
+
+CREATE TABLE `compras` (
+  `id_compra` int(11) NOT NULL,
+  `id_proveedor` int(11) NOT NULL,
+  `id_empleado` int(11) NOT NULL,
+  `fecha` date DEFAULT NULL,
+  `total_compra` float NOT NULL,
+  `status_compra` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Volcado de datos para la tabla `compras`
+--
+
+INSERT INTO `compras` (`id_compra`, `id_proveedor`, `id_empleado`, `fecha`, `total_compra`, `status_compra`) VALUES
+(1, 1, 1, '2024-05-07', 6000, 1),
+(2, 1, 2, '2024-05-09', 5000, 1),
+(3, 1, 2, '2024-05-16', 25600, 1),
+(4, 1, 3, '2024-05-16', 3200, 1),
+(5, 1, 3, '2024-05-16', 12800, 1),
+(6, 2, 4, '2024-05-16', 14798, 1);
+
+-- --------------------------------------------------------
+
+--
+-- Estructura Stand-in para la vista `detallescompras`
+-- (Véase abajo para la vista actual)
+--
+CREATE TABLE `detallescompras` (
+`id_compra` int(11)
+,`id_detalle_compra` int(11)
+,`id_producto` int(11)
+,`nombre_producto` varchar(45)
+,`id_producto_talla` int(11)
+,`id_talla` int(11)
+,`talla` varchar(30)
+,`cantidad` int(11)
+,`precio_unitario` float
+,`subtotal` float
+);
+
+-- --------------------------------------------------------
+
+--
 -- Estructura Stand-in para la vista `detallesventa`
 -- (Véase abajo para la vista actual)
 --
@@ -75,21 +121,57 @@ CREATE TABLE `detalles_compras` (
   `id_detalle_compra` int(11) NOT NULL,
   `id_compra` int(11) NOT NULL,
   `id_producto` int(11) NOT NULL,
+  `id_producto_talla` int(11) NOT NULL,
   `cantidad` int(11) DEFAULT NULL,
-  `precio` int(11) DEFAULT NULL,
-  `subtotal` int(11) NOT NULL
+  `precio_unitario` float DEFAULT NULL,
+  `subtotal` float NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Volcado de datos para la tabla `detalles_compras`
 --
 
-INSERT INTO `detalles_compras` (`id_detalle_compra`, `id_compra`, `id_producto`, `cantidad`, `precio`, `subtotal`) VALUES
-(1, 25, 87, 20, 300, 6000),
-(2, 26, 88, 2, 1200, 2400),
-(3, 20, 89, 1, 899, 899),
-(4, 27, 90, 5, 1000, 5000),
-(5, 28, 91, 3, 950, 2850);
+INSERT INTO `detalles_compras` (`id_detalle_compra`, `id_compra`, `id_producto`, `id_producto_talla`, `cantidad`, `precio_unitario`, `subtotal`) VALUES
+(1, 1, 1, 4, 5, 2899, 14495),
+(2, 1, 2, 5, 8, 3200, 25600),
+(3, 2, 4, 15, 3, 2999, 8697),
+(4, 2, 2, 5, 1, 3200, 3200),
+(5, 2, 1, 4, 9, 2899, 26091),
+(14, 3, 6, 24, 8, 3200, 25600),
+(15, 4, 6, 22, 1, 3200, 3200),
+(16, 5, 6, 23, 4, 3200, 12800),
+(17, 6, 1, 1, 2, 2899, 5798),
+(18, 6, 5, 18, 3, 3000, 9000);
+
+--
+-- Disparadores `detalles_compras`
+--
+DELIMITER $$
+CREATE TRIGGER `ActualizarTotalCompraOnDelete` AFTER DELETE ON `detalles_compras` FOR EACH ROW UPDATE compras
+SET total_compra = (
+	SELECT SUM(precio_unitario * cantidad)
+	FROM detalles_compras
+	WHERE id_compra = OLD.id_compra
+)
+WHERE id_compra = OLD.id_compra
+$$
+DELIMITER ;
+DELIMITER $$
+CREATE TRIGGER `ActualizarTotalCompraOnUpdate` AFTER UPDATE ON `detalles_compras` FOR EACH ROW UPDATE compras
+SET total_compra = (
+    SELECT SUM(precio_unitario * cantidad)
+    FROM detalles_compras
+    WHERE id_compra = NEW.id_compra
+)
+WHERE id_compra = NEW.id_compra
+$$
+DELIMITER ;
+DELIMITER $$
+CREATE TRIGGER `actualizar_total_compra` AFTER INSERT ON `detalles_compras` FOR EACH ROW UPDATE compras
+SET total_compra = total_compra + NEW.subtotal
+WHERE id_compra = NEW.id_compra
+$$
+DELIMITER ;
 
 -- --------------------------------------------------------
 
@@ -121,7 +203,8 @@ INSERT INTO `detalles_ventas` (`id_detalle_venta`, `id_venta`, `id_producto`, `i
 (26, 12, 4, 15, 2, 2999, 5998),
 (28, 13, 2, 7, 1, 3200, 3200),
 (29, 15, 1, 2, 2, 2899, 5798),
-(30, 15, 2, 6, 1, 3200, 3200);
+(30, 15, 2, 6, 1, 3200, 3200),
+(31, 16, 6, 21, 2, 3200, 6400);
 
 --
 -- Disparadores `detalles_ventas`
@@ -197,6 +280,20 @@ CREATE TABLE `informacioncliente` (
 -- --------------------------------------------------------
 
 --
+-- Estructura Stand-in para la vista `informacionproveedor`
+-- (Véase abajo para la vista actual)
+--
+CREATE TABLE `informacionproveedor` (
+`nombre_proveedor` varchar(45)
+,`direccion` varchar(45)
+,`telefono` int(11)
+,`cuantas_compras` bigint(21)
+,`total_compra` double
+);
+
+-- --------------------------------------------------------
+
+--
 -- Estructura de tabla para la tabla `productos`
 --
 
@@ -215,13 +312,13 @@ CREATE TABLE `productos` (
 --
 
 INSERT INTO `productos` (`id_producto`, `nombre_producto`, `descripcion`, `precio`, `stock`, `categoria`, `status`) VALUES
-(1, 'Air Jordan 1 Low Bred Toe 2.0', 'El Air Jordan 1 Low Bred Toe 2.0 es una versión moderna y fresca del icónico calzado deportivo diseñado por Nike en colaboración con Michael Jordan. Este modelo toma inspiración del clásico \"Bred Toe\", que combina colores rojo, blanco y negro de una manera llamativa y elegante.', 2899, 8, 'Tenis Jordan 1', 1),
+(1, 'Air Jordan 1 Low Bred Toe 2.0', 'El Air Jordan 1 Low Bred Toe 2.0 es una versión moderna y fresca del icónico calzado deportivo diseñado por Nike en colaboración con Michael Jordan. Este modelo toma inspiración del clásico \"Bred Toe\", que combina colores rojo, blanco y negro de una manera llamativa y elegante.', 2899, 10, 'Tenis Jordan 1', 1),
 (2, 'Air Jordan 1 Mid SE', 'Este calzado conserva la esencia del diseño original del Air Jordan 1, con su distintiva silueta de baloncesto de los años 80. Sin embargo, el Air Jordan 1 Mid SE ofrece una altura de corte medio, lo que significa que la parte superior llega hasta el tobillo, brindando un soporte adicional y un ajuste ligeramente diferente en comparación con el Air Jordan 1 High.', 3200, 2, 'Tenis Jordan 1', 1),
 (3, 'Jordan Jumpman', 'Los Jordan Jumpman están disponibles en una amplia variedad de estilos y modelos, desde versiones de alto rendimiento diseñadas específicamente para el baloncesto hasta opciones de estilo de vida que se centran en la moda urbana y el estilo cotidiano. Independientemente del modelo, los tenis Jordan Jumpman suelen incorporar características como amortiguación de última generación, materiales premium y diseños inspirados en la icónica silueta del Air Jordan.', 1149, 2, 'Sandalias', 1),
 (4, 'Nike Dunk Low', 'Las Nike Dunk Low presentan una silueta clásica de perfil bajo, con una parte superior de cuero o gamuza que ofrece durabilidad y soporte. Suelen tener una puntera reforzada y una suela exterior de goma para una tracción óptima. La lengüeta acolchada y el collar suelen proporcionar comodidad adicional, mientras que la entresuela de espuma brinda amortiguación y absorción de impactos.', 2999, 7, 'Tenis dunk', 1),
-(5, 'Nike Air Max 270', 'Los Nike Air Max 270 son zapatillas de deporte de estilo moderno y tecnología innovadora. Con una parte superior de tejido transpirable y una suela de espuma de doble densidad con una unidad Air Max en el talón, ofrecen comodidad y amortiguación durante todo el día. Su diseño elegante y versátil las hace ideales para correr, entrenar o usar en el día a día.', 3000, 15, 'Calzado deportivo', 1),
-(6, 'Nike React Infinity Run Flyknit', 'Las Nike React Infinity Run Flyknit son zapatillas de running diseñadas para ofrecer una combinación de comodidad, estabilidad y rendimiento. Incorporan tecnología Flyknit en la parte superior para un ajuste cómodo y adaptable, mientras que la amortiguación React en la entresuela proporciona una sensación suave y reactiva en cada zancada. Su diseño de alta calidad y sujeción adicional en el mediopié las hacen ideales para corredores que buscan un calzado fiable para largas distancias.', 3200, 17, 'Calzado deportivo', 1),
-(7, 'Nike Air Force 1', 'Las Nike Air Force 1 son zapatillas legendarias que combinan un estilo clásico con comodidad duradera. Con una parte superior de cuero premium y una suela de caucho resistente, estas zapatillas ofrecen un aspecto atemporal y una durabilidad excepcional. Su diseño de corte bajo y la unidad Air-Sole en el talón proporcionan amortiguación y soporte durante todo el día. Ideales tanto para la vida cotidiana como para ocasiones casuales.', 1800, 10, 'Calzado deportivo', 0);
+(5, 'Nike Air Max 270', 'Los Nike Air Max 270 son zapatillas de deporte de estilo moderno y tecnología innovadora. Con una parte superior de tejido transpirable y una suela de espuma de doble densidad con una unidad Air Max en el talón, ofrecen comodidad y amortiguación durante todo el día. Su diseño elegante y versátil las hace ideales para correr, entrenar o usar en el día a día.', 3000, 18, 'Calzado deportivo', 1),
+(6, 'Nike React Infinity Run Flyknit', 'Las Nike React Infinity Run Flyknit son zapatillas de running diseñadas para ofrecer una combinación de comodidad, estabilidad y rendimiento. Incorporan tecnología Flyknit en la parte superior para un ajuste cómodo y adaptable, mientras que la amortiguación React en la entresuela proporciona una sensación suave y reactiva en cada zancada. Su diseño de alta calidad y sujeción adicional en el mediopié las hacen ideales para corredores que buscan un calzado fiable para largas distancias.', 3200, 30, 'Calzado deportivo', 1),
+(7, 'Nike Air Force 1', 'Las Nike Air Force 1 son zapatillas legendarias que combinan un estilo clásico con comodidad duradera. Con una parte superior de cuero premium y una suela de caucho resistente, estas zapatillas ofrecen un aspecto atemporal y una durabilidad excepcional. Su diseño de corte bajo y la unidad Air-Sole en el talón proporcionan amortiguación y soporte durante todo el día. Ideales tanto para la vida cotidiana como para ocasiones casuales.', 1800, 10, 'Calzado deportivo', 1);
 
 -- --------------------------------------------------------
 
@@ -259,7 +356,12 @@ INSERT INTO `producto_talla` (`id_producto_talla`, `id_producto`, `id_talla`, `s
 (16, 2, 2, 1),
 (17, 2, 3, 1),
 (18, 5, 12, 1),
-(19, 5, 13, 1);
+(19, 5, 13, 1),
+(20, 6, 20, 1),
+(21, 6, 24, 1),
+(22, 6, 34, 1),
+(23, 6, 32, 1),
+(24, 6, 30, 1);
 
 -- --------------------------------------------------------
 
@@ -269,7 +371,7 @@ INSERT INTO `producto_talla` (`id_producto_talla`, `id_producto`, `id_talla`, `s
 
 CREATE TABLE `proveedores` (
   `id_proveedor` int(11) NOT NULL,
-  `nombreProveedor` varchar(45) DEFAULT NULL,
+  `nombre_proveedor` varchar(45) DEFAULT NULL,
   `direccion` varchar(45) DEFAULT NULL,
   `telefono` int(11) NOT NULL,
   `status` int(11) DEFAULT NULL,
@@ -280,21 +382,11 @@ CREATE TABLE `proveedores` (
 -- Volcado de datos para la tabla `proveedores`
 --
 
-INSERT INTO `proveedores` (`id_proveedor`, `nombreProveedor`, `direccion`, `telefono`, `status`, `cantidadReestock`) VALUES
+INSERT INTO `proveedores` (`id_proveedor`, `nombre_proveedor`, `direccion`, `telefono`, `status`, `cantidadReestock`) VALUES
 (1, 'TenisVB', 'Corregidora 54', 332522323, 1, 100),
 (2, 'TenisJD', 'islas antillas 55', 552522323, 1, 50),
 (3, 'TenisDK', 'hidalgo 233', 332522323, 0, 0),
 (4, 'Nike', 'Zapopan in C.C. Gran Terraza Belenes si', 333365872, 1, 120);
-
--- --------------------------------------------------------
-
---
--- Estructura de tabla para la tabla `prueba`
---
-
-CREATE TABLE `prueba` (
-  `id_prueba` int(11) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -415,7 +507,28 @@ INSERT INTO `ventas` (`id_venta`, `id_cliente`, `id_empleado`, `fecha`, `total_v
 (12, 2, 2, '2024-05-09', 9198, 1),
 (13, 1, 1, '2024-05-09', 3200, 1),
 (14, 2, 1, '2024-05-14', 0, 0),
-(15, 1, 1, '2024-05-14', 8998, 1);
+(15, 1, 1, '2024-05-14', 8998, 1),
+(16, 4, 4, '2024-05-16', 6400, 0);
+
+-- --------------------------------------------------------
+
+--
+-- Estructura Stand-in para la vista `vista_compras`
+-- (Véase abajo para la vista actual)
+--
+CREATE TABLE `vista_compras` (
+`id_compra` int(11)
+,`id_proveedor` int(11)
+,`id_empleado` int(11)
+,`fecha` date
+,`total_compra` float
+,`status_compra` int(11)
+,`nombre_proveedor` varchar(45)
+,`direccion` varchar(45)
+,`telefono` int(11)
+,`cantidadReestock` int(11)
+,`nombre_empleado` varchar(80)
+);
 
 -- --------------------------------------------------------
 
@@ -438,6 +551,15 @@ CREATE TABLE `vista_ventas` (
 -- --------------------------------------------------------
 
 --
+-- Estructura para la vista `detallescompras`
+--
+DROP TABLE IF EXISTS `detallescompras`;
+
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `detallescompras`  AS SELECT `cmp`.`id_compra` AS `id_compra`, `dc`.`id_detalle_compra` AS `id_detalle_compra`, `dc`.`id_producto` AS `id_producto`, `p`.`nombre_producto` AS `nombre_producto`, `dc`.`id_producto_talla` AS `id_producto_talla`, `pt`.`id_talla` AS `id_talla`, `t`.`talla` AS `talla`, `dc`.`cantidad` AS `cantidad`, `dc`.`precio_unitario` AS `precio_unitario`, `dc`.`subtotal` AS `subtotal` FROM ((((`compras` `cmp` join `detalles_compras` `dc` on(`cmp`.`id_compra` = `dc`.`id_compra`)) join `producto_talla` `pt` on(`dc`.`id_producto_talla` = `pt`.`id_producto_talla`)) join `tallas` `t` on(`pt`.`id_talla` = `t`.`id_talla`)) join `productos` `p` on(`dc`.`id_producto` = `p`.`id_producto`)) ;
+
+-- --------------------------------------------------------
+
+--
 -- Estructura para la vista `detallesventa`
 --
 DROP TABLE IF EXISTS `detallesventa`;
@@ -452,6 +574,24 @@ CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW 
 DROP TABLE IF EXISTS `informacioncliente`;
 
 CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `informacioncliente`  AS SELECT `c`.`id_cliente` AS `id_cliente`, `c`.`nombre_cliente` AS `nombre_cliente`, `c`.`email` AS `email`, `c`.`direccion` AS `direccion`, count(`v`.`id_venta`) AS `total_ventas_cliente`, sum(`v`.`total_venta`) AS `total_venta_status_1` FROM (`clientes` `c` left join `ventas` `v` on(`c`.`id_cliente` = `v`.`id_cliente` and `v`.`status_venta` = 1)) GROUP BY `c`.`nombre_cliente`, `c`.`email`, `c`.`direccion` ;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura para la vista `informacionproveedor`
+--
+DROP TABLE IF EXISTS `informacionproveedor`;
+
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `informacionproveedor`  AS SELECT `p`.`nombre_proveedor` AS `nombre_proveedor`, `p`.`direccion` AS `direccion`, `p`.`telefono` AS `telefono`, ifnull(`c`.`cuantas_compras`,0) AS `cuantas_compras`, ifnull(`c`.`total_compra`,0) AS `total_compra` FROM (`proveedores` `p` left join (select `c`.`id_proveedor` AS `id_proveedor`,count(0) AS `cuantas_compras`,sum(`c`.`total_compra`) AS `total_compra` from `compras` `c` group by `c`.`id_proveedor`) `c` on(`p`.`id_proveedor` = `c`.`id_proveedor`)) ;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura para la vista `vista_compras`
+--
+DROP TABLE IF EXISTS `vista_compras`;
+
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `vista_compras`  AS SELECT `cmp`.`id_compra` AS `id_compra`, `cmp`.`id_proveedor` AS `id_proveedor`, `cmp`.`id_empleado` AS `id_empleado`, `cmp`.`fecha` AS `fecha`, `cmp`.`total_compra` AS `total_compra`, `cmp`.`status_compra` AS `status_compra`, `prove`.`nombre_proveedor` AS `nombre_proveedor`, `prove`.`direccion` AS `direccion`, `prove`.`telefono` AS `telefono`, `prove`.`cantidadReestock` AS `cantidadReestock`, `empl`.`nombre_empleado` AS `nombre_empleado` FROM ((`compras` `cmp` join `proveedores` `prove` on(`cmp`.`id_proveedor` = `prove`.`id_proveedor`)) join `empleados` `empl` on(`cmp`.`id_empleado` = `empl`.`id_empleado`)) ORDER BY `cmp`.`fecha` DESC ;
 
 -- --------------------------------------------------------
 
@@ -471,6 +611,12 @@ CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW 
 --
 ALTER TABLE `clientes`
   ADD PRIMARY KEY (`id_cliente`);
+
+--
+-- Indices de la tabla `compras`
+--
+ALTER TABLE `compras`
+  ADD PRIMARY KEY (`id_compra`);
 
 --
 -- Indices de la tabla `detalles_compras`
@@ -509,12 +655,6 @@ ALTER TABLE `proveedores`
   ADD PRIMARY KEY (`id_proveedor`);
 
 --
--- Indices de la tabla `prueba`
---
-ALTER TABLE `prueba`
-  ADD PRIMARY KEY (`id_prueba`);
-
---
 -- Indices de la tabla `tallas`
 --
 ALTER TABLE `tallas`
@@ -537,16 +677,22 @@ ALTER TABLE `clientes`
   MODIFY `id_cliente` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=23;
 
 --
+-- AUTO_INCREMENT de la tabla `compras`
+--
+ALTER TABLE `compras`
+  MODIFY `id_compra` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+
+--
 -- AUTO_INCREMENT de la tabla `detalles_compras`
 --
 ALTER TABLE `detalles_compras`
-  MODIFY `id_detalle_compra` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id_detalle_compra` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=19;
 
 --
 -- AUTO_INCREMENT de la tabla `detalles_ventas`
 --
 ALTER TABLE `detalles_ventas`
-  MODIFY `id_detalle_venta` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=31;
+  MODIFY `id_detalle_venta` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=32;
 
 --
 -- AUTO_INCREMENT de la tabla `empleados`
@@ -564,19 +710,13 @@ ALTER TABLE `productos`
 -- AUTO_INCREMENT de la tabla `producto_talla`
 --
 ALTER TABLE `producto_talla`
-  MODIFY `id_producto_talla` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
+  MODIFY `id_producto_talla` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=25;
 
 --
 -- AUTO_INCREMENT de la tabla `proveedores`
 --
 ALTER TABLE `proveedores`
   MODIFY `id_proveedor` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
-
---
--- AUTO_INCREMENT de la tabla `prueba`
---
-ALTER TABLE `prueba`
-  MODIFY `id_prueba` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT de la tabla `tallas`
@@ -588,7 +728,7 @@ ALTER TABLE `tallas`
 -- AUTO_INCREMENT de la tabla `ventas`
 --
 ALTER TABLE `ventas`
-  MODIFY `id_venta` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
+  MODIFY `id_venta` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

@@ -16,6 +16,7 @@ RewriteRule ^modificar-tablas/([a-zA-Z0-9_-]+)$ modificar-tablas.php?tabla=$1
 RewriteRule ^tabla/([a-zA-Z0-9_-]+)$ tabla.php?tabla=$1
 RewriteRule ^producto/([a-zA-Z0-9_-]+)$ producto.php?id_producto=$1
 RewriteRule ^cliente/([a-zA-Z0-9_-]+)$ cliente.php?cliente=$1
+RewriteRule ^proveedor/([a-zA-Z0-9_-]+)$ proveedor.php?proveedor=$1
 #  RewriteRule ^libro/([a-zA-Z0-9_-]+)/([a-zA-Z0-9_-]+)$ libro.php?id=$1&titulo=$2
 # RewriteRule ^tienda/([a-zA-Z0-9_-]+)/([a-zA-Z0-9_-]+)/([a-zA-Z0-9_-]+)$ tienda.php?tipo=$1&opc=$2&page=$3
 
