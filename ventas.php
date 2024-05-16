@@ -78,7 +78,7 @@ ob_start();
                                 INNER JOIN empleados e ON v.id_empleado = e.id_empleado
                                 ORDER BY v.fecha DESC";
 
-                                $query2 = "SELECT * FROM vista_ventas";
+                                $query2 = "SELECT * FROM vista_ventas ORDER BY id_venta DESC";
                                 // echo $query2;
                                 $result2 = DatasetSQL($query2);
 

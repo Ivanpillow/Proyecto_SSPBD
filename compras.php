@@ -79,7 +79,7 @@ ob_start();
                                 INNER JOIN empleados empl ON cmp.id_empleado = empl.id_empleado
                                 ORDER BY cmp.fecha DESC";
 
-                                $query2 = "SELECT * FROM vista_compras";
+                                $query2 = "SELECT * FROM vista_compras ORDER BY id_compra DESC";
                                 // echo $query2;
                                 $result2 = DatasetSQL($query2);
 
@@ -160,7 +160,7 @@ ob_start();
                         #region Total y ordenamiento
                     ======================================-->
 
-                <h5 id="total_comprado">Total vendido: $<?php echo number_format($total_comprado, 2) ?></h5>
+                <h5 id="total_comprado">Total comprado: $<?php echo number_format($total_comprado, 2) ?></h5>
                 </div>
                 <div class="col-4">
                     <h4 class="text">Ordenar por:</h4>
